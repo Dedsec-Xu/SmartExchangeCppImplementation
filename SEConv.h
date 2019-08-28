@@ -9,6 +9,7 @@
 #define BF_B_2 1024
 #define BF_B_3 1024
 #define BF_B_4 1024
+#define PI 3.141592654
 
 class SEConv
 {       
@@ -44,6 +45,8 @@ public:
     int num_splits;
     fixed Ce_buffer[BF_CE_1][BF_CE_2][BF_CE_3];//buffered Ce and B
     fixed B_buffer[BF_B_1][BF_B_2][BF_B_3];
+    int size_C_dim[3];
+    int size_B_dim[3]; 
 }
 
 

@@ -9,6 +9,7 @@
 #include "SEConv.h"
 #include<math.h>
 
+
 //stride=1, padding=0, dilation=1, groups=1, bias=False, size_splits=64,
 //threshold=5e-3 
 
@@ -110,57 +111,106 @@ SEConv::SEConv(bool bn_input, bool relu_input, int batch_size_input, int ch_in_i
     // self.set_mask()
 
     // self.reset_parameters()
+    size_C_dim[0] = ch_out * num_splits;
+    size_C_dim[1] = size_splits * kernel_size;
+    SIZE_C_dim[2] = size_B; //the three dimension size of CE
+
+    size_B_dim[0] = size_C_dim[0];// self.C.size()[0],
+    size_B_dim[1] = size_B;
+    SIZE_B_dim[2] = size_B;
+
     reset_parameters();
 }
 
 void SEConv::reset_parameters()
 {
     int n = ch_in;
+    kaiming_uniform_(Ce_buffer, 3, size_C_dim[0], size_C_dim[1], size_C_dim[2]);
+    // with torch.no_grad():
+    //     self.B.normal_(0, 1.0 / math.sqrt(self.size_B))//normal distribution
+    normal_(B_buffer, 0, sqrt(size_B))
+    // if self.bias is not None:
+    //     fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
+    //     bound = 1 / math.sqrt(fan_in)
+    //     init.uniform_(self.bias, -bound, bound)
 
 }
 
-def _calculate_fan_in_and_fan_out(tensor,int dimensions, int size_1, int size_2):
-    if (dimensions == 2) // Linear
+// int SEConv::_calculate_fan_out(fixed input_matrix[][][], int numel, int dimensions, int size_1, int size_2)//size_1 = tensor.size(0)
+// {//we assert that dimension is 3
+//     int fan_out;
+//     // if (dimensions == 2) // Linear
+//     // {
+//     //     int fan_out = size_2;
+//     // }
+//     // else
+//     // {
+//     // int num_output_fmaps = size_2;
+//     // int receptive_field_size = 1
+//     // if (dimensions > 2)
+//     // {
+//     //     receptive_field_size = numel;
+//     //     //tensor[0][0].numel()
+//     // }
+//     fan_out =  size_2 * numel;
+//     // }
+        
+
+//     return fan_out;
+// }
+    
+
+int SEConv::kaiming_uniform_(fixed input_matrix[][][], int dimensions, int size_1, int size_2, int size_3) {//mode='fan_out', nonlinearity='relu'
+  double bound = sqrt(6.0) / sqrt(size_2*size_3));//replaced SEConv::_calculate_fan_out()
+  uniform_(tensor, -bound, bound, size_1, size_2, size_3);
+}
+
+int SEConv::uniform_(fixed input_matrix[][][], float lower_bound, float upper_bound, int size_1, int size_2, int size_3)
+{
+    for(int iter_1 = 0; iter_1 < size_1; iter_1++)
     {
-        int fan_in = size_1;
-        int fan_out = size_2;
+        for(int iter_2 = 0; iter_2 < size_2; iter_2++)
+        {
+            for(int iter_3 = 0; iter_3 < size_3; iter_3++)
+            {
+                input_matrix[iter_1][iter_2][iter_3] = (((float)rand() / (float)(RAND_MAX)) * (upper_bound - lower_bound)) + lower_bound;
+            }
+        }
+    }
+}
+
+int SEConv::normal_(fixed input_matrix[][][], float mean_in, float std_in, int size_1, int size_2, int size_3)
+{
+    for(int iter_1 = 0; iter_1 < size_1; iter_1++)
+    {
+        for(int iter_2 = 0; iter_2 < size_2; iter_2++)
+        {
+            for(int iter_3 = 0; iter_3 < size_3; iter_3++)
+            {
+                input_matrix[iter_1][iter_2][iter_3] = mean_in + (gaussrand() * std_in);
+            }
+        }
+    }
+}
+
+fixed SEConv::gaussrand()//Box-Muller
+{
+    static fixed U, V;
+    static int phase = 0;
+    fixed Z;
+
+    if(phase == 0)
+    {
+        U = rand() / (RAND_MAX + 1.0);
+        V = rand() / (RAND_MAX + 1.0);
+        Z = sqrt(-2.0 * log(U))* sin(2.0 * PI * V);
     }
     else
     {
-        int num_input_fmaps = size_1;
-        int num_output_fmaps = size_2;
-        receptive_field_size = 1
-        if tensor.dim() > 2:
-            receptive_field_size = tensor[0][0].numel()
-        fan_in = num_input_fmaps * receptive_field_size
-        fan_out = num_output_fmaps * receptive_field_size
+        Z = sqrt(-2.0 * log(U)) * cos(2.0 * PI * V);
     }
-        
 
-    return fan_in, fan_out
-
-double calculate_kaiming_std(
-    Tensor tensor,
-    double a,
-    FanMode mode,
-    Nonlinearity nonlinearity) {
-    NoGradGuard guard;
-    Fan fan(tensor);
-    const auto gain = calculate_gain(nonlinearity, a);
-    double std = 0.0;
-
-    std = gain / std::sqrt(fan.out);
-    return std;
+    phase = 1 - phase;
+    retrn Z;
 }
 
-Tensor kaiming_uniform_(
-    Tensor tensor,
-    double a,
-    FanMode mode,
-    Nonlinearity nonlinearity) {
-  NoGradGuard guard;
-  auto std = calculate_kaiming_std(tensor, a, mode, nonlinearity);
-  // Calculate uniform bounds from standard deviation
-  const auto bound = std::sqrt(3.0) * std;
-  return tensor.uniform_(-bound, bound);
-}
