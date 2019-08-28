@@ -5,7 +5,7 @@
 //  Created by LIANGDONG XU on 8/27/19.
 //  Copyright © 2019 LIANGDONG XU. All rights reserved.
 //
-#include "fpga_module.h"
+#include "SEConv.h"
 #include "SEConv.h"
 #include <math.h>
 
