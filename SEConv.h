@@ -1,6 +1,14 @@
 #ifndef SE_CONV_MASK_H
 #define SE_CONV_MASK_H
 #include "fpga_module.h"
+#define BF_CE_1 1024
+#define BF_CE_2 1024
+#define BF_CE_3 1024
+#define BF_CE_4 1024
+#define BF_B_1 1024
+#define BF_B_2 1024
+#define BF_B_3 1024
+#define BF_B_4 1024
 
 class SEConv
 {       
@@ -30,6 +38,8 @@ public:
     int size_B;
     int size_C;
     int num_splits;
+    fixed Ce_buffer[BF_CE_1][BF_CE_2][BF_CE_3];//buffered Ce and B
+    fixed B_buffer[BF_B_1][BF_B_2][BF_B_3];
 }
 
 

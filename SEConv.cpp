@@ -38,6 +38,7 @@ SEConv::SEConv(bool bn_input, bool relu_input, int batch_size_input, int ch_in_i
     bias = bias_input;
     size_splits = size_splits_input;
     threshold = threshold_input;
+
     if(kernel_size > 1)
     {
         size_B = kernel_size;
@@ -99,5 +100,15 @@ SEConv::SEConv(bool bn_input, bool relu_input, int batch_size_input, int ch_in_i
             size_splits = 22;
         }
     }
-	return 0;
+    //Ce_Buffered
+    //self.C = nn.Parameter(torch.Tensor(
+    //out_channels * self.num_splits,
+    //self.size_splits * self.kernel_size[0], self.size_B)).float()
+    //self.B = nn.Parameter(torch.Tensor(
+    //self.C.size()[0], self.size_B, self.size_B)).float()
+    //self.register_buffer('mask', torch.Tensor(*self.C.size()).float())
+    // self.set_mask()
+
+    // self.reset_parameters()
+    reset_parameters();
 }
