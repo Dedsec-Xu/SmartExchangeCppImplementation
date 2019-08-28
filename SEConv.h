@@ -18,6 +18,10 @@ public:
          int ch_out_input, int size_in_input, int size_out_input, int kernel_size_input,
          int stride_input, int padding_input, fixed* conv_in_input, fixed* weights_input, fixed* bias_input,
          fixed* conv_out_input, bool bias_input, int size_splits_input, float threshold_input);
+    void reset_parameters();
+    
+    
+    
     bool bn;
     bool relu;
     int batch_size;

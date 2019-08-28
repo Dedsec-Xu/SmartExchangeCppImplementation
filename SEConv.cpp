@@ -112,3 +112,55 @@ SEConv::SEConv(bool bn_input, bool relu_input, int batch_size_input, int ch_in_i
     // self.reset_parameters()
     reset_parameters();
 }
+
+void SEConv::reset_parameters()
+{
+    int n = ch_in;
+
+}
+
+def _calculate_fan_in_and_fan_out(tensor,int dimensions, int size_1, int size_2):
+    if (dimensions == 2) // Linear
+    {
+        int fan_in = size_1;
+        int fan_out = size_2;
+    }
+    else
+    {
+        int num_input_fmaps = size_1;
+        int num_output_fmaps = size_2;
+        receptive_field_size = 1
+        if tensor.dim() > 2:
+            receptive_field_size = tensor[0][0].numel()
+        fan_in = num_input_fmaps * receptive_field_size
+        fan_out = num_output_fmaps * receptive_field_size
+    }
+        
+
+    return fan_in, fan_out
+
+double calculate_kaiming_std(
+    Tensor tensor,
+    double a,
+    FanMode mode,
+    Nonlinearity nonlinearity) {
+    NoGradGuard guard;
+    Fan fan(tensor);
+    const auto gain = calculate_gain(nonlinearity, a);
+    double std = 0.0;
+
+    std = gain / std::sqrt(fan.out);
+    return std;
+}
+
+Tensor kaiming_uniform_(
+    Tensor tensor,
+    double a,
+    FanMode mode,
+    Nonlinearity nonlinearity) {
+  NoGradGuard guard;
+  auto std = calculate_kaiming_std(tensor, a, mode, nonlinearity);
+  // Calculate uniform bounds from standard deviation
+  const auto bound = std::sqrt(3.0) * std;
+  return tensor.uniform_(-bound, bound);
+}
