@@ -162,10 +162,14 @@ void SEConv::reset_parameters()
 // }
     
 
-int SEConv::kaiming_uniform_(fixed input_matrix[][][], int dimensions, int size_1, int size_2, int size_3) {//mode='fan_out', nonlinearity='relu'
-  double bound = sqrt(6.0) / sqrt(size_2*size_3));//replaced SEConv::_calculate_fan_out()
+int SEConv::kaiming_uniform_(fixed input_matrix[][][], int dimensions, int size_1, int size_2, int size_3) 
+{
+//mode='fan_out', nonlinearity='relu'
+  double bound = sqrt(6.0) / sqrt(size_2*size_3);//replaced SEConv::_calculate_fan_out()
   uniform_(tensor, -bound, bound, size_1, size_2, size_3);
 }
+
+
 
 int SEConv::uniform_(fixed input_matrix[][][], float lower_bound, float upper_bound, int size_1, int size_2, int size_3)
 {
@@ -226,11 +230,11 @@ void SEConv::set_mask()
             {
                 if(fabs(Ce_buffer[iter_1][iter_2][iter_3]) < 1e-6)//equals to 0
                 {
-                    data[iter_1][iter_2][iter_3] = 0.0;
+                    mask_data_buffer[iter_1][iter_2][iter_3] = 0.0;
                 }
                 else
                 {
-                    data[iter_1][iter_2][iter_3] = 1.0;
+                    mask_data_buffer[iter_1][iter_2][iter_3] = 1.0;
                 }
             }
         }
@@ -239,7 +243,18 @@ void SEConv::set_mask()
 
 void SEConv::get_weight(fixed Ce_buffer[][][], fixed B_buffer[][][], fixed weight[][][][])
 {
-    
+    // this is obviously wrong
+    // for(int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
+    // {
+    //     for(int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
+    //     {
+    //         for(int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
+    //         {
+    //             qC[iter_1][iter_2][iter_3] = qC[iter_1][iter_2][iter_3] * mask_data_buffer[iter_1][iter_2][iter_3];
+    //         }
+    //     }
+    // }
+    //requires * bmm sparsify_and_nearestpow2 reshape
 }
 
 void SEConv::forward(fixed Ce_buffer[][][], fixed B_buffer[][][], fixed weight[][][][])
