@@ -27,6 +27,7 @@ class SEConv
 	void set_mask();
 	void get_weight(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3]);
 	void forward(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3]);
+	void backward_(fixed weights[], )
 
 	bool bn;
 	bool relu;
@@ -51,7 +52,8 @@ class SEConv
 	fixed Ce_buffer[BF_CE_1][BF_CE_2][BF_CE_3];	//buffered Ce and B
 	fixed B_buffer[BF_B_1][BF_B_2][BF_B_3];
 	fixed mask_data_buffer[BF_CE_1][BF_CE_1][BF_CE_1];
-	fixed qC_buffer[BF_CE_1][BF_CE_1][BF_CE_1];
+	fixed qC_buffer[BF_CE_1][BF_CE_1][BF_CE_1];\
+	fixed weights[W_BUFFER];
 	int size_C_dim[3];
 	int size_B_dim[3];
 }

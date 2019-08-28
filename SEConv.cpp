@@ -239,24 +239,35 @@ void SEConv::set_mask()
 
 void SEConv::get_weight(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3])
 {
+	for (int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
+	{
+		for (int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
+		{
+			for (int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
+			{
+				if fabs(qC[iter_1][iter_2][iter_3]) >= ;
+			}
+		}
+	}
+
 	// this is obviously wrong
-	// for(int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
-	// {
-	//     for(int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
-	//     {
-	//         for(int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
-	//         {
-	//             qC[iter_1][iter_2][iter_3] = qC[iter_1][iter_2][iter_3] *mask_data_buffer[iter_1][iter_2][iter_3];
-	//         }
-	//     }
-	// }
-	// requires *bmm sparsify_and_nearestpow2 reshape
+	for(int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
+	{
+	    for(int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
+	    {
+	        for(int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
+	        {
+	            qC[iter_1][iter_2][iter_3] = qC[iter_1][iter_2][iter_3] * mask_data_buffer[iter_1][iter_2][iter_3];
+	        }
+	    }
+	}
+	//requires *bmm sparsify_and_nearestpow2 reshape
 }
 
 void SEConv::forward(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3])
 {
 	get_weight(Ce_buffer, B_buffer, weight_buffer);
 	conv(bn, relu, batch_size, ch_in, ch_out, size_in, size_out, kernel_size, stride, padding, conv_in, weights, bias, conv_out);
-
+	
 	return weight;
 }

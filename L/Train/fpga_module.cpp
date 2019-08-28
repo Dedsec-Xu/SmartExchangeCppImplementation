@@ -33,8 +33,8 @@ int conv(bool bn, bool relu, int batch_size, int ch_in, int ch_out, int size_in,
     int i;
     id_img = 0;
     for (id_output_row=0;id_output_row<size_out;id_output_row++){
-            for (id_output_col=0;id_output_col<size_out;id_output_col++) {
-            	we_idx =0;
+            for (id_output_col = 0;id_output_col<size_out;id_output_col++) {
+            	we_idx = 0;
             	ptr_we = 0;
                 for (id_ch_out = 0; id_ch_out < ch_out; id_ch_out++) {
                     //#pragma HLS UNROLL FACTOR=8
