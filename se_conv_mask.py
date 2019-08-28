@@ -55,6 +55,27 @@ class SEConv2d(nn.Module):
             self.size_B = 3
             self.num_splits, self.size_splits = VEC_2_SHAPE[self.in_channels]
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            
+
         self.C = nn.Parameter(torch.Tensor(
                     out_channels * self.num_splits,
                     self.size_splits * self.kernel_size[0], self.size_B)).float()
