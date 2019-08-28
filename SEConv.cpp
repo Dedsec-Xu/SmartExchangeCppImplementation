@@ -109,6 +109,7 @@ SEConv::SEConv(bool bn_input, bool relu_input, int batch_size_input, int ch_in_i
     //self.C.size()[0], self.size_B, self.size_B)).float()
     //self.register_buffer('mask', torch.Tensor(*self.C.size()).float())
     // self.set_mask()
+    
 
     // self.reset_parameters()
     size_C_dim[0] = ch_out * num_splits;
@@ -118,6 +119,7 @@ SEConv::SEConv(bool bn_input, bool relu_input, int batch_size_input, int ch_in_i
     size_B_dim[0] = size_C_dim[0];// self.C.size()[0],
     size_B_dim[1] = size_B;
     SIZE_B_dim[2] = size_B;
+    set_mask();
 
     reset_parameters();
 }
@@ -214,3 +216,36 @@ fixed SEConv::gaussrand()//Box-Muller
     retrn Z;
 }
 
+void SEConv::set_mask()
+{
+    for(int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
+    {
+        for(int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
+        {
+            for(int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
+            {
+                if(fabs(Ce_buffer[iter_1][iter_2][iter_3]) < 1e-6)//equals to 0
+                {
+                    data[iter_1][iter_2][iter_3] = 0.0;
+                }
+                else
+                {
+                    data[iter_1][iter_2][iter_3] = 1.0;
+                }
+            }
+        }
+    }
+}
+
+void SEConv::get_weight(fixed Ce_buffer[][][], fixed B_buffer[][][], fixed weight[][][][])
+{
+    
+}
+
+void SEConv::forward(fixed Ce_buffer[][][], fixed B_buffer[][][], fixed weight[][][][])
+{
+    get_weight(Ce_buffer, B_buffer, weight_buffer);
+    conv(bn, relu, batch_size, ch_in, ch_out, size_in, size_out, kernel_size, stride, padding, conv_in, weights, bias, conv_out);
+
+    return weight;
+}
