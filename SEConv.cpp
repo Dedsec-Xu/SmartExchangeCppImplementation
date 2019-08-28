@@ -254,7 +254,7 @@ void SEConv::get_weight(fixed Ce_buffer[][][], fixed B_buffer[][][], fixed weigh
     //         }
     //     }
     // }
-    //requires * bmm sparsify_and_nearestpow2 reshape
+    // requires * bmm sparsify_and_nearestpow2 reshape
 }
 
 void SEConv::forward(fixed Ce_buffer[][][], fixed B_buffer[][][], fixed weight[][][][])
