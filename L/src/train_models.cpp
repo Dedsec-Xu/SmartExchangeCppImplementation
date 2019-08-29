@@ -218,8 +218,8 @@ float lenet_back(fixed* l0, fixed* weights, float lr, float momentum, float weig
 	 std::cout << "forward is good" << std::endl;
 
      fixed grada_l7[10];
-     cross_entropy(10,l7, grada_l7);
-	 //std::cout << "cross entropy is good" << std::endl;
+     cross_entropy(10, l7, grada_l7);
+     //std::cout << "cross entropy is good" << std::endl;
 
      fixed gradw_l6[840];
      fixed gradb_l6[10];

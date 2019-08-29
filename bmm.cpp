@@ -7,53 +7,46 @@
 //
 #include <iostream>
 #include "stdio.h"
+#define buffersize_x 
+#define buffersize_y
 using namespace std;
 int i,x,y,r;
 int m=0,n=0,l=0;
 int output[4][5];//需要把输出矩阵作为全局变量且固定大小
-int bmm( int input1[i][x][y], int input2[i][y][r])
+int bmm(int input1[][buffersize_x][buffersize_y], int input2[][buffersize_x][buffersize_y], int output[][buffersize_x][buffersize_y], int input1_dim[], int input2_dim[], int output_dim[])
 {
-  
-for(int d=0; d<=i; d++)// d= dimension
-{
-    int a[m][n];
-    int b[n][l];
-    int c[m][l];
-      ///initial the computed martix/
-    for (int i = 0;i < m;i++) {
-        for (int j = 0;j < r;j++) {
-            c[i][j] = 0;
-        }
-    }
-    ///compute the martix/
-    for (int i = 0;i < m;i++) {
-        for (int j = 0;j < r;j++) {
-            for (int k = 0;k < n;k++) {
-                c[i][j] = c[i][j] + (a[i][k] * b[k][j]);
+    for(int d=0; d<=i; d++)// d= dimension
+    {
+        int a[m][n];
+        int b[n][l];
+        int c[m][l];
+        ///initial the computed martix/
+        for (int i = 0;i < m;i++) {
+            for (int j = 0;j < r;j++) {
+                c[i][j] = 0;
             }
         }
-    }
-    /// display the martix/
-    cout << endl << endl << "result："<< endl << endl;
-    for (int i= 0;i < m;i++) {
-        for (int j = 0;j < r;j++) {
-        cout << c[i][j] << "\t";
-           output[x][y]=c[i][j];
+        ///compute the martix/
+        for (int i = 0;i < m;i++) {
+            for (int j = 0;j < r;j++) {
+                for (int k = 0;k < n;k++) {
+                    c[i][j] = c[i][j] + (a[i][k] * b[k][j]);
+                }
+            }
         }
-        cout << endl << endl;
-    }
-    
-    cout << endl << endl << "result："<< endl << endl;
-    for (int i= 0;i < m;i++) {
-        for (int j = 0;j < r;j++) {
-            cout << c[i][j] << "\t";
+        /// display the martix/
+        // cout << endl << endl << "result："<< endl << endl;
+        for (int i= 0;i < m;i++) {
+            for (int j = 0;j < r;j++) {
+            // cout << c[i][j] << "\t";
+            output[x][y]=c[i][j];
+            }
+            // cout << endl << endl;
         }
-        cout << endl << endl;
+
+        
     }
-    
-    
-}
-  return 0;
+    return 0;
 }
     
     
