@@ -248,11 +248,8 @@ void SEConv::get_weight(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF
 	//         {
 	//             qC[iter_1][iter_2][iter_3] = qC[iter_1][iter_2][iter_3] *mask_data_buffer[iter_1][iter_2][iter_3];
 	//         }
-
 	//     }
-
 	// }
-
 	// requires *bmm sparsify_and_nearestpow2 reshape
 }
 
