@@ -183,12 +183,12 @@ float lenet_back(fixed* l0, fixed* weights, float lr, float momentum, float weig
      fixed sum;
      weight_pointer = 0;
      bias_pointer = weight_pointer + 450;
-     fixed l1[4704];
-     conv(0, 1, 1, 3, 6, 32, 28, 5, 1, 0, l0, weights + weight_pointer, weights + bias_pointer, l1);
+     SEConv C1 = new SEConv(0, 1, 1, 3, 6, 32, 28, 5, 1, 0, l0, weights + weight_pointer, weights + bias_pointer, l1);
+
 
      fixed l2[1176];
      int l2_idx[4704];
-     max_pooling2(1, 6, 28, 14, 2, l1, l2,l2_idx);
+     max_pooling2(1, 6, 28, 14, 2, c1.l1, l2, l2_idx);
 
      weight_pointer = 456;
      bias_pointer = weight_pointer + 2400;
@@ -315,64 +315,8 @@ float lenet_back(fixed* l0, fixed* weights, float lr, float momentum, float weig
      fixed grada_l2_part[196];
      fixed gradw_l2_part[25];
      fixed w_l2_part[25];
-     weight_pointer = 456;
-     bias_pointer = weight_pointer + 2400;
-     for (i=0;i<16;i++){
-         sum = 0.0;
-         for (j=0;j<100;j++){
-             sum += grada_l3[j];
-         }
-         gradb_l2[i]=sum;
-     }
-     for (i=0;i<6;i++){
-         for (k=0;k<196;k++){
-             a_l2_part[k] = l2[k+i*196];
-         }
-         for (j=0;j<16;j++){
-              for (p=0;p<100;p++){
-                  if (i!=0){;}
-                  else if (1 && (l3[p+j*196]==0.0)){
-                       grada_l3_part[p] = 0.0;
-                  }
-                  else{
-                       grada_l3_part[p] = grada_l3[p+j*196];
-                  }
-              }
-			  fixed bias_temp[] = { 0 };
-              conv(false, false, 1 , 1, 1, 14, 5, 10, 1.0 , 0, a_l2_part, grada_l3_part, bias_temp, gradw_l2_part);
-			  //std::cout << "backward conv1 is good" << std::endl;
-              for (p=0;p<25;p++){
-                  gradw_l2[j*150+i*25+p]=gradw_l2_part[p];
-              }
-              for (p=0;p<5;p++){
-                  for (q=0;q<5;q++){
-                      w_l2_part[p*5+q]= weights[weight_pointer + j*150 +i*25 +(5-1-p)*5+(5-1-q)];
-                  }
-              }
-              conv(false, false, 1, 1, 1, 5, 14, 10, 1, 1, w_l2_part, grada_l3_part, bias_temp, grada_l2_part);
-			  //std::cout << "backward conv2 is good" << std::endl;
-              for (p=0;p<196;p++){
-                  grada_l2[i*196+p] += grada_l2_part[p];
-              }
-         }
-     }
-     for (i=0;i<16;i++){
-         weights[bias_pointer + i] += -lr * gradb_l2[i];
-     }
-     for (i=0;i<2400;i++){
-         weights[weight_pointer + i] += -lr * gradw_l2[i];
-     }
-     fixed grada_l1[4704]={0.0};
-     //for (i=0;i<1176;i++){
-     //    grada_l1[l2_idx[i]]=grada_l2[i];
-     //}
-	 int count2 = 0;
-	 for (i = 0; i < 4704; i++) {
-		 if (l2_idx[i] == 1) {
-			 grada_l1[i] = grada_l2[count2];
-			 count2++;
-		 }
-	 }
+     C1.backward();
+    
 
      fixed gradw_l0[450];
      fixed gradb_l0[6]={0.0};
