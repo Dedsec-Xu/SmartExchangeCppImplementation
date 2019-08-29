@@ -237,19 +237,69 @@ void SEConv::set_mask()
 	}
 }
 
+output = input.new_zeros(input.size())
+            input_sign = input.sign()
+            input_abs = input.abs()
+
+            nnz_idx = input_abs >= threshold
+            input_abs_nnz = input_abs[nnz_idx]
+
+            nextpow2 = 2 ** input_abs_nnz.log2().ceil()
+            prevpow2 = nextpow2 / 2.0
+            lerr = input_abs_nnz - prevpow2
+            rerr = nextpow2 - input_abs_nnz
+            lbetter = (lerr < rerr).float()
+            # print(prevpow2.size(), nextpow2.size(), lbetter.size())
+            # output_abs_nnz = prevpow2[lbetter] + nextpow2[~lbetter]
+            output_abs_nnz = prevpow2 * lbetter + nextpow2 * (1 - lbetter)
+
+            output[nnz_idx] = output_abs_nnz * input_sign[nnz_idx]
+
 void SEConv::get_weight(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3])
 {
-	for (int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
+	fixed input_sign, input_abs;
+	double log_temp, ceil_temp, prevpow2, nextpow2, lerr, rerr;
+	for(int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
 	{
-		for (int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
-		{
-			for (int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
-			{
-				if fabs(qC[iter_1][iter_2][iter_3]) >= ;
-			}
-		}
+	    for(int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
+	    {
+	        for(int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
+	        {
+	            if (Ce_buffer[iter_1][iter_2][iter_3] > 0.0)
+				{
+					input_sign = 1.0;
+				}
+				else if(Ce_buffer[iter_1][iter_2][iter_3] < 0.0)
+				{
+					input_sign = 0.0;
+				}
+
+				input_abs = fabs(Ce_buffer[iter_1][iter_2][iter_3]);
+				if(input_abs >= threshold)
+				{
+					log_temp = log(input_abs) / log(2);
+					nextpow2 = pow(2.0，ceil(log_temp));
+					prevpow2 = nextpow2 / 2.0;
+					lerr = input_abs - prevpow2;
+            		rerr = nextpow2 - input_abs;
+					if(lerr < rerr)
+					{
+						qC[iter_1][iter_2][iter_3] = prevpow2;
+					}
+					else
+					{
+						qC[iter_1][iter_2][iter_3] = nextpow2;
+					}
+				}
+				else
+				{
+					qC[iter_1][iter_2][iter_3] = 0.0;
+				}
+	        }
+	    }
 	}
 
+	
 	// this is obviously wrong
 	for(int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
 	{
@@ -257,17 +307,17 @@ void SEConv::get_weight(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF
 	    {
 	        for(int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
 	        {
-	            qC[iter_1][iter_2][iter_3] = qC[iter_1][iter_2][iter_3] * mask_data_buffer[iter_1][iter_2][iter_3];
+	            qC[iter_1][iter_2][iter_3] = qC[iter_1][iter_2][iter_3] *mask_data_buffer[iter_1][iter_2][iter_3];
 	        }
 	    }
 	}
-	//requires *bmm sparsify_and_nearestpow2 reshape
+	// requires *bmm sparsify_and_nearestpow2 reshape
 }
 
 void SEConv::forward(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3])
 {
 	get_weight(Ce_buffer, B_buffer, weight_buffer);
 	conv(bn, relu, batch_size, ch_in, ch_out, size_in, size_out, kernel_size, stride, padding, conv_in, weights, bias, conv_out);
-	
+
 	return weight;
 }
