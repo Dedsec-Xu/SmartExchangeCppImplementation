@@ -258,7 +258,7 @@ output = input.new_zeros(input.size())
 void SEConv::get_weight(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3])
 {
 	fixed input_sign, input_abs;
-	double log_temp, ceil_temp, prevpow2, lbetter, nextpow2, lerr, rerr;
+	double log_temp, ceil_temp, prevpow2, nextpow2, lerr, rerr;
 	for(int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
 	{
 	    for(int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
@@ -284,13 +284,12 @@ void SEConv::get_weight(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF
             		rerr = nextpow2 - input_abs;
 					if(lerr < rerr)
 					{
-						lbetter = 1.0;
+						qC[iter_1][iter_2][iter_3] = prevpow2;
 					}
 					else
 					{
-						lbetter = 0.0;
+						qC[iter_1][iter_2][iter_3] = nextpow2;
 					}
-					qC[iter_1][iter_2][iter_3] = prevpow2 * lbetter + nextpow2 * (1 - lbetter)
 				}
 				else
 				{
