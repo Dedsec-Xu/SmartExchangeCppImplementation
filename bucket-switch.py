@@ -8,7 +8,7 @@ if args.switch:
         with torch.no_grad():
             qC = m.sparsify_and_quantize_C()
             # grad_C = m.C.grad
-            dC = optim.get_d(m.C)
+            dC = optim.get_d(m.C)//?
             if dC is None:
                 continue
             if args.dC_threshold > 0.0:

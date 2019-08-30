@@ -11,6 +11,8 @@
 #define BF_B_4 1024
 #define PI 3.141592654
 
+typedef float fixed;
+
 class SEConv
 {
 	public:
@@ -54,6 +56,8 @@ class SEConv
 	fixed qC_buffer[BF_CE_1][BF_CE_1][BF_CE_1];
 	int size_C_dim[3];
 	int size_B_dim[3];
+	fixed dC_threshold = 0.5;
+	fixed switch_bar=7.0;
 }
 
 #endif

@@ -257,51 +257,11 @@ void SEConv::set_mask()
 
 void SEConv::get_weight(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3])
 {
-	fixed input_sign, input_abs;
-	double log_temp, ceil_temp, prevpow2, nextpow2, lerr, rerr;
-	for(int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
-	{
-	    for(int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
-	    {
-	        for(int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
-	        {
-	            if (Ce_buffer[iter_1][iter_2][iter_3] > 0.0)
-				{
-					input_sign = 1.0;
-				}
-				else if(Ce_buffer[iter_1][iter_2][iter_3] < 0.0)
-				{
-					input_sign = 0.0;
-				}
 
-				input_abs = fabs(Ce_buffer[iter_1][iter_2][iter_3]);
-				if(input_abs >= threshold)
-				{
-					log_temp = log(input_abs) / log(2);
-					nextpow2 = pow(2.0，ceil(log_temp));
-					prevpow2 = nextpow2 / 2.0;
-					lerr = input_abs - prevpow2;
-            		rerr = nextpow2 - input_abs;
-					if(lerr < rerr)
-					{
-						qC[iter_1][iter_2][iter_3] = prevpow2;
-					}
-					else
-					{
-						qC[iter_1][iter_2][iter_3] = nextpow2;
-					}
-				}
-				else
-				{
-					qC[iter_1][iter_2][iter_3] = 0.0;
-				}
-	        }
-	    }
-	}
+	sparsify_and_quantize_C(qC);
 
-	
-	// this is obviously wrong
-	for(int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
+		// this is obviously wrong
+		for (int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
 	{
 	    for(int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
 	    {
@@ -322,8 +282,59 @@ void SEConv::forward(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE
 	return weight;
 }
 
-fixed SEConv::backward()
+fixed SEConv::backward(fixed loss, fixed max_C, fixed min_C)
 {
+	parsify_and_quantize_C(qC);
+	
+	for (int iter_1 = 0; iter_1 < size_1; iter_1++)
+	{
+		for (int iter_2 = 0; iter_2 < size_2; iter_2++)
+		{
+			for (int iter_3 = 0; iter_3 < size_3; iter_3++)
+			{
+				//dC[dC.abs() <= args.dC_threshold] = 0.0
+				//dC = optim.get_d(m.C) //?
+				if (dC_buffer[iter_1][iter_2][iter_3] <= dC_threshold)
+				{
+					dC_buffer[iter_1][iter_2][iter_3] = 0;
+				}
+				dC_sign[iter_1][iter_2][iter_3] = (dC_buffer[iter_1][iter_2][iter_3] > 0) ? 1 : -1;
+				dC_counter[iter_1][iter_2][iter_3] += dC_sign[iter_1][iter_2][iter_3];
+				//dC_counter.abs() == args.switch_bar
+				if (fabs(dC_counter[iter_1][iter_2][iter_3]) == switch_bar)
+				{
+					//dC_sign = m.dC_counter.sign() * activated.float();
+
+					dC_pow[iter_1][iter_2][iter_3] = ((dC_counter[iter_1][iter_2][iter_3] > 0) ? 1 : -1) * ((qC[iter_1][iter_2][iter_3] > 0) ? 1 : -1);
+					dC_mul[iter_1][iter_2][iter_3] = pow(2, dC_pow[iter_1][iter_2][iter_3]);
+					if (qC[iter_1][iter_2][iter_3] == 0)
+					{
+						dC_add = mask_data_buffer[iter_1][iter_2][iter_3] * dC_sign[iter_1][iter_2][iter_3] * min_C;
+					}
+					else
+					{
+						dC_add = 0.0;
+					}
+					dC_counter[iter_1][iter_2][iter_3] = 0.0;
+				}
+				else
+				{
+					dC_mul[iter_1][iter_2][iter_3] = 1.0;
+					dC_add = 0.0;
+				}
+				Ce_buffer[iter_1][iter_2][iter_3] = Ce_buffer[iter_1][iter_2][iter_3] * dC_mul[iter_1][iter_2][iter_3] + dC_add;
+				if (Ce_buffer[iter_1][iter_2][iter_3] > max_C)//clamp
+				{
+					Ce_buffer[iter_1][iter_2][iter_3] = max_C;
+				}
+				else if (Ce_buffer[iter_1][iter_2][iter_3] < -max_C)
+				{
+					Ce_buffer[iter_1][iter_2][iter_3] = -max_C;
+				}
+			}
+		}
+	}
+	//qC = 
 	// loss.backward()
 
 	// if args.switch:
@@ -364,3 +375,48 @@ fixed SEConv::backward()
 
 	// optim.step()
 }
+fixed sparsify_and_quantize_C(fixed qC[][BF_CE_2][BF_CE_3])
+{
+	fixed input_sign, input_abs;
+	double log_temp, ceil_temp, prevpow2, nextpow2, lerr, rerr;
+	for (int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
+	{
+		for (int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
+		{
+			for (int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
+			{
+				if (Ce_buffer[iter_1][iter_2][iter_3] > 0.0)
+				{
+					input_sign = 1.0;
+				}
+				else if (Ce_buffer[iter_1][iter_2][iter_3] < 0.0)
+				{
+					input_sign = 0.0;
+				}
+
+				input_abs = fabs(Ce_buffer[iter_1][iter_2][iter_3]);
+				if (input_abs >= threshold)
+				{
+					log_temp = log(input_abs) / log(2);
+					nextpow2 = pow(2.0，ceil(log_temp));
+					prevpow2 = nextpow2 / 2.0;
+					lerr = input_abs - prevpow2;
+					rerr = nextpow2 - input_abs;
+					if (lerr < rerr)
+					{
+						qC[iter_1][iter_2][iter_3] = prevpow2;
+					}
+					else
+					{
+						qC[iter_1][iter_2][iter_3] = nextpow2;
+					}
+				}
+				else
+				{
+					qC[iter_1][iter_2][iter_3] = 0.0;
+				}
+			}
+		}
+	}
+}
+	
