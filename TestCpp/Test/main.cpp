@@ -88,8 +88,6 @@ int reshape(fixed1 input1[][buffersize_x][buffersize_y], fixed1 output[][buffers
                         }
 
                     }
-
-
                 }
                 if(break_flag == 1)
                 {

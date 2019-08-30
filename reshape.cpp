@@ -26,8 +26,8 @@ int reshape(fixed1 input1[][buffersize_x][buffersize_y], fixed1 output[][buffers
                 {
                     output[iter_1][iter_2][iter_3][iter_4] = input1[in_iter_1][in_iter_2][in_iter_3];
                     current_iter = iter_1 * dim_1 + iter_2 * dim_2 + iter_3 * dim_3 + iter_4 * dim_4;
-                    cout << "output" << "[" << iter_1 << "]" << "[" << iter_2 << "]" << "[" << iter_3 << "]" << "[" << iter_4 << "]" << "=" << output[iter_1][iter_2][iter_3][iter_4] << endl;
-                    cout << "input1" << "[" << in_iter_1 << "]" << "[" << in_iter_2 << "]" << "[" << in_iter_3 << "]" << "=" << input1[in_iter_1][in_iter_2][in_iter_3] << endl;
+                    // cout << "output" << "[" << iter_1 << "]" << "[" << iter_2 << "]" << "[" << iter_3 << "]" << "[" << iter_4 << "]" << "=" << output[iter_1][iter_2][iter_3][iter_4] << endl;
+                    // cout << "input1" << "[" << in_iter_1 << "]" << "[" << in_iter_2 << "]" << "[" << in_iter_3 << "]" << "=" << input1[in_iter_1][in_iter_2][in_iter_3] << endl;
                     in_iter_3 += 1;
                     if(in_iter_3>=input_d3)
                     {
@@ -43,10 +43,7 @@ int reshape(fixed1 input1[][buffersize_x][buffersize_y], fixed1 output[][buffers
                                 break;
                             }
                         }
-
                     }
-
-
                 }
                 if(break_flag == 1)
                 {
