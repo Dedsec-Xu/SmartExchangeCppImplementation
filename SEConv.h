@@ -9,6 +9,8 @@
 #define BF_B_2 1024
 #define BF_B_3 1024
 #define BF_B_4 1024
+
+#define Reshape_Buffer_Size 10000
 #define PI 3.141592654
 
 class SEConv
