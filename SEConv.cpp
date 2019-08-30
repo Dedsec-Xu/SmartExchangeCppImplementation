@@ -321,3 +321,8 @@ void SEConv::forward(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE
 
 	return weight;
 }
+
+fixed SEConv::backward()
+{
+	
+}
