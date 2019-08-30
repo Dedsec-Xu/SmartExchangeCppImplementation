@@ -1,6 +1,6 @@
 void reshape(fixed input1[][buffersize_x][buffersize_y], fixed output[][buffersize_x][buffersize_y][buffersize_y], int inputdim[], int dim_1, int dim_2, int dim_3, int dim_4)
 {
-    int input_d1, input_d2, input_d, input_d1X2, in_iter_1, in_iter_2, in_iter_3;
+    int input_d1, input_d2, input_d3, input_d, input_d1X2, in_iter_1, in_iter_2, in_iter_3;
     input_d1 = inputdim[0];
     input_d2 = inputdim[1];
     input_d3 = inputdim[2];

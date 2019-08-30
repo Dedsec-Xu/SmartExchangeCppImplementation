@@ -9,6 +9,8 @@
 #define BF_B_2 1024
 #define BF_B_3 1024
 #define BF_B_4 1024
+#define buffersize_x 1024
+#define buffersize_y 1024
 
 #define Reshape_Buffer_Size 10000
 #define PI 3.141592654
@@ -22,13 +24,13 @@ class SEConv
 		int stride_input, int padding_input, fixed *conv_in_input, fixed *weights_input, fixed *bias_input,
 		fixed *conv_out_input, bool bias_input, int size_splits_input, float threshold_input);
 	void reset_parameters();
-	int kaiming_uniform_(fixed (*input_matrix)[BF_CE_2][BF_CE_3], int dimensions, int size_1, int size_2, int size_3);
-	int uniform_(fixed (*input_matrix)[BF_CE_2][BF_CE_3], float lower_bound, float upper_bound, int size_1, int size_2, int size_3);
-	int normal_(fixed (*input_matrix)[BF_CE_2][BF_CE_3], float mean_in, float std_in, int size_1, int size_2, int size_3);
+	int kaiming_uniform_(fixed input_matrix[][BF_CE_2][BF_CE_3], int dimensions, int size_1, int size_2, int size_3);
+	int uniform_(fixed input_matrix[][BF_CE_2][BF_CE_3], float lower_bound, float upper_bound, int size_1, int size_2, int size_3);
+	int normal_(fixed input_matrix[][BF_CE_2][BF_CE_3], float mean_in, float std_in, int size_1, int size_2, int size_3);
 	fixed gaussrand();
 	void set_mask();
-	void get_weight(fixed (*Ce_buffer)[BF_CE_2][BF_CE_3], fixed (*B_buffer)[BF_CE_2][BF_CE_3], fixed (*weight)[BF_CE_2][BF_CE_3]);
-	void forward(fixed (*Ce_buffer)[BF_CE_2][BF_CE_3], fixed (*B_buffer)[BF_CE_2][BF_CE_3], fixed (*weight)[BF_CE_2][BF_CE_3]);
+	void get_weight(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3]);
+	void forward(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3]);
 
 	bool bn;
 	bool relu;

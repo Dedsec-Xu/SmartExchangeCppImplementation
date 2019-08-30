@@ -10,18 +10,23 @@ using namespace std;
 #define BF_B_2 1024
 #define BF_B_3 1024
 #define BF_B_4 1024
+#define buffersize_x 1024
+#define buffersize_y 1024
 
 #define Reshape_Buffer_Size 10000
 #define PI 3.141592654
+typedef float fixed1;
+
+int reshape(fixed1 input1[][buffersize_x][buffersize_y], fixed1 (*output)[buffersize_x][buffersize_y][buffersize_y], int inputdim[], int dim_1, int dim_2, int dim_3, int dim_4);
 int main()
 {
     cout << "Hello world!" << endl;
     return 0;
 }
 
-int reshape(fixed input1[][buffersize_x][buffersize_y], fixed output[][buffersize_x][buffersize_y][buffersize_y], int inputdim[], int dim_1, int dim_2, int dim_3, int dim_4)
+int reshape(fixed1 input1[][buffersize_x][buffersize_y], fixed1 (*output)[buffersize_x][buffersize_y][buffersize_y], int inputdim[], int dim_1, int dim_2, int dim_3, int dim_4)
 {
-    int input_d1, input_d2, input_d, input_d1X2, in_iter_1, in_iter_2, in_iter_3;
+    int input_d1, input_d2, input_d3, input_d, input_d1X2, in_iter_1, in_iter_2, in_iter_3;
     input_d1 = inputdim[0];
     input_d2 = inputdim[1];
     input_d3 = inputdim[2];

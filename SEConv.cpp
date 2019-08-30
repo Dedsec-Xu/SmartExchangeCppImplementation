@@ -136,7 +136,7 @@ void SEConv::reset_parameters()
 
 }
 
-// int SEConv::_calculate_fan_out(fixed (*input_matrix)[BF_CE_2][BF_CE_3], int numel, int dimensions, int size_1, int size_2)//size_1 = tensor.size(0)
+// int SEConv::_calculate_fan_out(fixed input_matrix[][BF_CE_2][BF_CE_3], int numel, int dimensions, int size_1, int size_2)//size_1 = tensor.size(0)
 // {//we assert that dimension is 3
 //     int fan_out;
 //    	// if (dimensions == 2)	// Linear
@@ -160,14 +160,14 @@ void SEConv::reset_parameters()
 //     return fan_out;
 // }
 
-int SEConv::kaiming_uniform_(fixed (*input_matrix)[BF_CE_2][BF_CE_3], int dimensions, int size_1, int size_2, int size_3)
+int SEConv::kaiming_uniform_(fixed input_matrix[][BF_CE_2][BF_CE_3], int dimensions, int size_1, int size_2, int size_3)
 {
 	//mode='fan_out', nonlinearity='relu'
 	double bound = sqrt(6.0) / sqrt(size_2 *size_3);	//replaced SEConv::_calculate_fan_out()
 	uniform_(tensor, -bound, bound, size_1, size_2, size_3);
 }
 
-int SEConv::uniform_(fixed (*input_matrix)[BF_CE_2][BF_CE_3], float lower_bound, float upper_bound, int size_1, int size_2, int size_3)
+int SEConv::uniform_(fixed input_matrix[][BF_CE_2][BF_CE_3], float lower_bound, float upper_bound, int size_1, int size_2, int size_3)
 {
 	for (int iter_1 = 0; iter_1 < size_1; iter_1++)
 	{
@@ -181,7 +181,7 @@ int SEConv::uniform_(fixed (*input_matrix)[BF_CE_2][BF_CE_3], float lower_bound,
 	}
 }
 
-int SEConv::normal_(fixed (*input_matrix)[BF_CE_2][BF_CE_3], float mean_in, float std_in, int size_1, int size_2, int size_3)
+int SEConv::normal_(fixed input_matrix[][BF_CE_2][BF_CE_3], float mean_in, float std_in, int size_1, int size_2, int size_3)
 {
 	for (int iter_1 = 0; iter_1 < size_1; iter_1++)
 	{
@@ -255,7 +255,7 @@ void SEConv::set_mask()
 
 //             output[nnz_idx] = output_abs_nnz * input_sign[nnz_idx]
 
-void SEConv::get_weight(fixed (*Ce_buffer)[BF_CE_2][BF_CE_3], fixed (*B_buffer)[BF_CE_2][BF_CE_3], fixed (*weight)[BF_CE_2][BF_CE_3])
+void SEConv::get_weight(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3])
 {
 	fixed input_sign, input_abs;
 	double log_temp, ceil_temp, prevpow2, nextpow2, lerr, rerr;
@@ -314,7 +314,7 @@ void SEConv::get_weight(fixed (*Ce_buffer)[BF_CE_2][BF_CE_3], fixed (*B_buffer)[
 	// requires *bmm sparsify_and_nearestpow2 reshape
 }
 
-void SEConv::forward(fixed (*Ce_buffer)[BF_CE_2][BF_CE_3], fixed (*B_buffer)[BF_CE_2][BF_CE_3], fixed (*weight)[BF_CE_2][BF_CE_3])
+void SEConv::forward(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3])
 {
 	get_weight(Ce_buffer, B_buffer, weight_buffer);
 	conv(bn, relu, batch_size, ch_in, ch_out, size_in, size_out, kernel_size, stride, padding, conv_in, weights, bias, conv_out);
