@@ -237,23 +237,23 @@ void SEConv::set_mask()
 	}
 }
 
-output = input.new_zeros(input.size())
-            input_sign = input.sign()
-            input_abs = input.abs()
+// output = input.new_zeros(input.size())
+//             input_sign = input.sign()
+//             input_abs = input.abs()
 
-            nnz_idx = input_abs >= threshold
-            input_abs_nnz = input_abs[nnz_idx]
+//             nnz_idx = input_abs >= threshold
+//             input_abs_nnz = input_abs[nnz_idx]
 
-            nextpow2 = 2 ** input_abs_nnz.log2().ceil()
-            prevpow2 = nextpow2 / 2.0
-            lerr = input_abs_nnz - prevpow2
-            rerr = nextpow2 - input_abs_nnz
-            lbetter = (lerr < rerr).float()
-            # print(prevpow2.size(), nextpow2.size(), lbetter.size())
-            # output_abs_nnz = prevpow2[lbetter] + nextpow2[~lbetter]
-            output_abs_nnz = prevpow2 * lbetter + nextpow2 * (1 - lbetter)
+//             nextpow2 = 2 ** input_abs_nnz.log2().ceil()
+//             prevpow2 = nextpow2 / 2.0
+//             lerr = input_abs_nnz - prevpow2
+//             rerr = nextpow2 - input_abs_nnz
+//             lbetter = (lerr < rerr).float()
+//             # print(prevpow2.size(), nextpow2.size(), lbetter.size())
+//             # output_abs_nnz = prevpow2[lbetter] + nextpow2[~lbetter]
+//             output_abs_nnz = prevpow2 * lbetter + nextpow2 * (1 - lbetter)
 
-            output[nnz_idx] = output_abs_nnz * input_sign[nnz_idx]
+//             output[nnz_idx] = output_abs_nnz * input_sign[nnz_idx]
 
 void SEConv::get_weight(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3])
 {
