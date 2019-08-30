@@ -7,19 +7,34 @@
 //
 #include <iostream>
 #include "stdio.h"
-#define buffersize_x 
-#define buffersize_y
+#define buffersize_x 4
+#define buffersize_y 5
+#define buffersize_r 6
 using namespace std;
 int i,x,y,r;
 int m=0,n=0,l=0;
 int output[4][5];//需要把输出矩阵作为全局变量且固定大小
-int bmm(int input1[][buffersize_x][buffersize_y], int input2[][buffersize_x][buffersize_y], int output[][buffersize_x][buffersize_y], int input1_dim[], int input2_dim[], int output_dim[])
+int bmm(int input1[][buffersize_x][buffersize_y], int input2[][buffersize_y][buffersize_r], int output[][buffersize_x][buffersize_r], int dim)
 {
-    for(int d=0; d<=i; d++)// d= dimension
+    
+    
+    int a[m][n];
+    int b[n][l];
+    int c[m][l];
+    for(int d=0; d<=dim; d++)// d= dimension
     {
-        int a[m][n];
-        int b[n][l];
-        int c[m][l];
+        for (int i= 0;i < m;i++) {
+            for (int j = 0;j < r;j++) {
+                a[m][n]=input1[d][i][j];
+            }
+        }
+        
+        for (int i= 0;i < m;i++) {
+            for (int j = 0;j < r;j++) {
+                b[m][n]=input2[d][i][j];
+            }
+        }
+        
         ///initial the computed martix/
         for (int i = 0;i < m;i++) {
             for (int j = 0;j < r;j++) {
@@ -39,7 +54,7 @@ int bmm(int input1[][buffersize_x][buffersize_y], int input2[][buffersize_x][buf
         for (int i= 0;i < m;i++) {
             for (int j = 0;j < r;j++) {
             // cout << c[i][j] << "\t";
-            output[x][y]=c[i][j];
+            output[d][i][j]=c[i][j];
             }
             // cout << endl << endl;
         }
