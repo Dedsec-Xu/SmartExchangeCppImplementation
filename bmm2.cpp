@@ -3,7 +3,10 @@ void bmm(fixed input1[][buffersize_x][buffersize_y], fixed input2[][buffersize_y
 {
     if((input1_dim[0] == input2_dim[0])&&(input1_dim[2] == input2_dim[1]))
     {
-        int r = input1_dim[2]
+        output_dim[0] = input1_dim[0];
+        output_dim[1] = input1_dim[1];
+        output_dim[2] = input2_dim[2];
+        int r = input1_dim[2];
         for(int iter_1 = 0; iter_1 < output_dim[0]; iter_1++)
         {
             for(int iter_2 = 0; iter_2 < output_dim[1]; iter_2++)
@@ -22,11 +25,3 @@ void bmm(fixed input1[][buffersize_x][buffersize_y], fixed input2[][buffersize_y
         }
     }
 }
-    
-    
-    
-    
-    
-    
-    
-
