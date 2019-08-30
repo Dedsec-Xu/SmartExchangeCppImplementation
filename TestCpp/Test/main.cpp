@@ -17,6 +17,10 @@ using namespace std;
 
 #define Reshape_Buffer_Size 10000
 #define PI 3.141592654
+#define reshape_debug 1
+
+#define bmm_debug 0
+
 typedef float fixed1;
 
 int reshape(fixed1 input1[][buffersize_x][buffersize_y], fixed1 output[][buffersize_x][buffersize_y][buffersize_y], int inputdim[], int dim_1, int dim_2, int dim_3, int dim_4);
@@ -28,60 +32,69 @@ int main()
     fixed1 input1[buffersize_x][buffersize_x][buffersize_y];
     fixed1 input2[buffersize_x][buffersize_y][buffersize_r];
     fixed1 output2[buffersize_x][buffersize_x][buffersize_r];
-    int size_C_dim[3] = {4,4,4};
+    int size_C_dim[3] = {8,8,8};
     int input1_dim[3] = {5,5,4};
     int input2_dim[3] = {5,4,6};
     int output2_dim[3] = {1,1,1};
+    fixed1 output[buffersize_x][buffersize_x][buffersize_y][buffersize_y];
     int i = 0;
-    // for (int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
-	// {
-	// 	for (int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
-	// 	{
-	// 		for (int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
-	// 		{
-    //             i++;
-	// 			input1[iter_1][iter_2][iter_3] = (float) i;	//equals to 0
-	// 			cout << "input1" << "[" << iter_1 << "]" << "[" << iter_2 << "]" << "[" << iter_3 << "]" << "=" << input1[iter_1][iter_2][iter_3] << endl;
-	// 		}
-	// 	}
-	// }
+    if(reshape_debug == 1)
+    {
+        for (int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
+        {
+            for (int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
+            {
+                for (int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
+                {
+                    i++;
+                    input1[iter_1][iter_2][iter_3] = (float) i;	//equals to 0
+                    cout << input1[iter_1][iter_2][iter_3] << "\t";
+                }
+                cout << endl;
+            }
+            cout << endl;
+        }
+        reshape(input1, output, size_C_dim, 2, -1, 8, 2);
+    }
+    if(bmm_debug == 1)
+    {
+        for (int iter_1 = 0; iter_1 < input1_dim[0]; iter_1++)
+        {
+            for (int iter_2 = 0; iter_2 < input1_dim[1]; iter_2++)
+            {
+                for (int iter_3 = 0; iter_3 < input1_dim[2]; iter_3++)
+                {
+                    i++;
+                    input1[iter_1][iter_2][iter_3] = (float) i;	//equals to 0
+                    cout << "input1" << "[" << iter_1 << "]" << "[" << iter_2 << "]" << "[" << iter_3 << "]" << "=" << input1[iter_1][iter_2][iter_3] << endl;
+                }
+            }
+        }
 
-	for (int iter_1 = 0; iter_1 < input1_dim[0]; iter_1++)
-	{
-		for (int iter_2 = 0; iter_2 < input1_dim[1]; iter_2++)
-		{
-			for (int iter_3 = 0; iter_3 < input1_dim[2]; iter_3++)
-			{
-                i++;
-				input1[iter_1][iter_2][iter_3] = (float) i;	//equals to 0
-				cout << "input1" << "[" << iter_1 << "]" << "[" << iter_2 << "]" << "[" << iter_3 << "]" << "=" << input1[iter_1][iter_2][iter_3] << endl;
-			}
-		}
-	}
-
-	for (int iter_1 = 0; iter_1 < input2_dim[0]; iter_1++)
-	{
-		for (int iter_2 = 0; iter_2 < input2_dim[1]; iter_2++)
-		{
-			for (int iter_3 = 0; iter_3 < input2_dim[2]; iter_3++)
-			{
-                i++;
-				input2[iter_1][iter_2][iter_3] = (float) i;	//equals to 0
-				cout << "input2" << "[" << iter_1 << "]" << "[" << iter_2 << "]" << "[" << iter_3 << "]" << "=" << input2[iter_1][iter_2][iter_3] << endl;
-			}
-		}
-	}
-	fixed1 output[buffersize_x][buffersize_x][buffersize_y][buffersize_y];
-	for (int iter_1 = 0; iter_1 < 3; iter_1++)
-	{
-        cout << output2_dim[iter_1] << endl;
-	}
-	bmm(input1, input2, output2, input1_dim, input2_dim, output2_dim);
-    for (int iter_1 = 0; iter_1 < 3; iter_1++)
-	{
-        cout << output2_dim[iter_1] << endl;
-	}
-	// reshape(input1, output, size_C_dim, 2, 8, 2, 2);
+        for (int iter_1 = 0; iter_1 < input2_dim[0]; iter_1++)
+        {
+            for (int iter_2 = 0; iter_2 < input2_dim[1]; iter_2++)
+            {
+                for (int iter_3 = 0; iter_3 < input2_dim[2]; iter_3++)
+                {
+                    i++;
+                    input2[iter_1][iter_2][iter_3] = (float) i;	//equals to 0
+                    cout << "input2" << "[" << iter_1 << "]" << "[" << iter_2 << "]" << "[" << iter_3 << "]" << "=" << input2[iter_1][iter_2][iter_3] << endl;
+                }
+            }
+        }
+        fixed1 output[buffersize_x][buffersize_x][buffersize_y][buffersize_y];
+        for (int iter_1 = 0; iter_1 < 3; iter_1++)
+        {
+            cout << output2_dim[iter_1] << endl;
+        }
+        bmm(input1, input2, output2, input1_dim, input2_dim, output2_dim);
+        for (int iter_1 = 0; iter_1 < 3; iter_1++)
+        {
+            cout << output2_dim[iter_1] << endl;
+        }
+    }
+	//
     return 0;
 }
 
@@ -149,8 +162,7 @@ int reshape(fixed1 input1[][buffersize_x][buffersize_y], fixed1 output[][buffers
                 {
                     output[iter_1][iter_2][iter_3][iter_4] = input1[in_iter_1][in_iter_2][in_iter_3];
                     current_iter = iter_1 * dim_1 + iter_2 * dim_2 + iter_3 * dim_3 + iter_4 * dim_4;
-                    cout << "output" << "[" << iter_1 << "]" << "[" << iter_2 << "]" << "[" << iter_3 << "]" << "[" << iter_4 << "]" << "=" << output[iter_1][iter_2][iter_3][iter_4] << endl;
-                    cout << "input1" << "[" << in_iter_1 << "]" << "[" << in_iter_2 << "]" << "[" << in_iter_3 << "]" << "=" << input1[in_iter_1][in_iter_2][in_iter_3] << endl;
+                    cout <<  output[iter_1][iter_2][iter_3][iter_4]<<"\t" ;
                     in_iter_3 += 1;
                     if(in_iter_3>=input_d3)
                     {
@@ -168,16 +180,22 @@ int reshape(fixed1 input1[][buffersize_x][buffersize_y], fixed1 output[][buffers
                         }
                     }
                 }
+                cout << endl;
                 if(break_flag == 1)
                 {
                     break;
                 }
             }
+            cout << endl;
+            cout << endl;
             if(break_flag == 1)
             {
                 break;
             }
         }
+        cout << endl;
+        cout << endl;
+        cout << endl;
         if(break_flag == 1)
         {
             break;

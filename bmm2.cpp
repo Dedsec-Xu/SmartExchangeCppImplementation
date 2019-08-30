@@ -13,15 +13,23 @@ void bmm(fixed input1[][buffersize_x][buffersize_y], fixed input2[][buffersize_y
             {
                 for(int iter_3 = 0; iter_3 < output_dim[2]; iter_3++)
                 {
-                    fixed sum = 0.0;
+                    fixed1 sum = 0.0;
                     for(int iter_4 = 0; iter_4 < input1_dim[2]; iter_4++)
                     {
-                        sum += input1[iter_1][iter_2][iter_4];
-                        sum += input2[iter_1][iter_4][iter_3];//C[a,i,j]=sum(r,A[a,i,r]+B[a,r,j])
+                        sum += input1[iter_1][iter_2][iter_4]*input2[iter_1][iter_4][iter_3];//C[a,i,j]=sum(r,A[a,i,r]*B[a,r,j])
+                        //cout << sum<<endl;
                     }
                     output[iter_1][iter_2][iter_3] = sum;
+                    // cout <<  output[iter_1][iter_2][iter_3]<<"\t" ;
                 }
+                // cout << endl;
             }
+            // cout << endl;
+            // cout << endl;
         }
+    }
+    else
+    {
+        //  cout << "DIM_ERROR" << endl;
     }
 }
