@@ -4,7 +4,7 @@
 
 
 int resnet18_inference(fixed* img, fixed* weights);
-float resnet18(int num_batch, int batch_size,int num_weights, int print_or_not);
+float resnet18(int num_batch, int batch_size,int num_weights, int print_or_not,fixed weights[]);
 
 
 

@@ -1,4 +1,5 @@
 #include "resnet18_model.h"
+#include <iostream>
 
 
 
@@ -149,9 +150,9 @@ int resnet18_inference(fixed* img, fixed* weights) {
 	std::cout << bias_id + 1000 << std::endl;
 	return label;
 }
-float resnet18(int num_batch, int batch_size,int num_weights, int print_or_not) {
+float resnet18(int num_batch, int batch_size,int num_weights, int print_or_not,fixed weights[]) {
 	const int numWeights = 11500200;
-	fixed weights[numWeights] = { 0.0 };
+	//fixed weights[numWeights] = { 0.0 };
 
 	//FILE *f_we;
 	//f_we = fopen("Resnet_weights.bin", "rb");
@@ -179,14 +180,14 @@ float resnet18(int num_batch, int batch_size,int num_weights, int print_or_not) 
 
 	for (int i = 0; i < num_batch; i++) {
 		for (int j = 0; j < batch_size; j += 1) {
-			tmp = std::string(s1) + std::string(s2) + std::to_string(i*batch_size + j) + std::string(s3);
+			tmp = std::string(s1) + std::string(s2) + std::to_string(8000+i*batch_size + j) + std::string(s3);
 			img_file = tmp.c_str();
 			f_img = fopen(img_file, "rb");
 			if (!f_img) {
 				std::cout << "Cannot open images file " << img_file << std::endl;
 			}
 			else {
-				if (print_or_not) std::cout << "procssing " << img_file << "............." << std::endl;
+				if (print_or_not) std::cout << "testing using " << img_file << "............." << std::endl;
 				//fixed img[num_pixels] = { 0.0 };
 				img = new fixed[num_pixels * sizeof(fixed)];
 				fread(img, sizeof(fixed), num_pixels + 1, f_img);

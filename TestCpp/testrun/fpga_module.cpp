@@ -102,9 +102,9 @@ int conv(bool bn, bool relu, int batch_size, int ch_in, int ch_out, int size_in,
             }
             output_idx += size_out;
         }
-	if (bn == 1) {
-		batch_norm(batch_size, ch_out, size_out, conv_out);
-	}
+	//if (bn == 1) {
+	//	batch_norm(batch_size, ch_out, size_out, conv_out);
+	//}
 
 	if (relu == 1) {
 		for (int i = 0; i < ch_out*size_out*size_out; i++) {

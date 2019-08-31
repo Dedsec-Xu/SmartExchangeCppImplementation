@@ -1,15 +1,15 @@
 #include <iostream>
-
 #include "time.h"
 #include "fpga_module.h"
 #include "resnet18_model.h"
+#include "train_noSE.h"
 #include "unistd.h"
-using namespace std;
+#include <iostream>
 
 //void train_main()
 int main()
 {
-	cout << "train_main" <<endl;
+	std::cout << "train the model:" <<std::endl;
 	train(1, 0, 0.5, 0, 0.98);
 
 	//cout << "test: "<<endl;

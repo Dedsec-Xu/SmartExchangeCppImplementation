@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1567274343 source:e:\documents\github\smartexchangecppimplementation\testcpp\testrun\fpga_module.cpp
+1567286008 source:e:\documents\github\smartexchangecppimplementation\testcpp\testrun\fpga_module.cpp
 	"fpga_module.h"
 	<math.h>
 
@@ -15,4 +15,22 @@
 1565837585 e:\documents\github\smartexchangecppimplementation\testcpp\testrun\unistd.h
 	<io.h>
 	<process.h>
+
+1567293313 source:e:\documents\github\smartexchangecppimplementation\testcpp\testrun\main.cpp
+	<iostream>
+	"time.h"
+	"fpga_module.h"
+	"resnet18_model.h"
+	"train_noSE.h"
+	"unistd.h"
+	<iostream>
+
+1567287303 e:\documents\github\smartexchangecppimplementation\testcpp\testrun\resnet18_model.h
+	"fpga_module.h"
+	"unistd.h"
+
+1567279199 e:\documents\github\smartexchangecppimplementation\testcpp\testrun\train_nose.h
+	"fpga_module.h"
+	"resnet18_model.h"
+	<iostream>
 
