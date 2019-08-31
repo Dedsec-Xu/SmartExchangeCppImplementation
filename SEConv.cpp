@@ -122,7 +122,7 @@ SEConv::SEConv(bool bn_input, bool relu_input, int batch_size_input, int ch_in_i
 	reset_parameters();
 }
 
-void SEConv::reset_parameters()
+int SEConv::reset_parameters()
 {
 	int n = ch_in;
 	kaiming_uniform_(Ce_buffer, 3, size_C_dim[0], size_C_dim[1], size_C_dim[2]);
@@ -216,7 +216,7 @@ fixed SEConv::gaussrand()	//Box-Muller
 	retrn Z;
 }
 
-void SEConv::set_mask()
+int SEConv::set_mask()
 {
 	for (int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
 	{
@@ -255,7 +255,7 @@ void SEConv::set_mask()
 
 //             output[nnz_idx] = output_abs_nnz * input_sign[nnz_idx]
 
-void SEConv::get_weight(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3])
+int SEConv::get_weight(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3])
 {
 
 	sparsify_and_quantize_C(qC);
@@ -274,7 +274,7 @@ void SEConv::get_weight(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF
 	// requires *bmm sparsify_and_nearestpow2 reshape
 }
 
-void SEConv::forward(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3])
+int SEConv::forward(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3])
 {
 	get_weight(Ce_buffer, B_buffer, weight_buffer);
 	conv(bn, relu, batch_size, ch_in, ch_out, size_in, size_out, kernel_size, stride, padding, conv_in, weights, bias, conv_out);
