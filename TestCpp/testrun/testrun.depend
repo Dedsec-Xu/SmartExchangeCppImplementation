@@ -1,0 +1,18 @@
+# depslib dependency file v1.0
+1567274343 source:e:\documents\github\smartexchangecppimplementation\testcpp\testrun\fpga_module.cpp
+	"fpga_module.h"
+	<math.h>
+
+1567239323 e:\documents\github\smartexchangecppimplementation\testcpp\testrun\fpga_module.h
+	<string>
+	<stdlib.h>
+	<stdio.h>
+	"unistd.h"
+	<ctime>
+	"stdio.h"
+	<cmath>
+
+1565837585 e:\documents\github\smartexchangecppimplementation\testcpp\testrun\unistd.h
+	<io.h>
+	<process.h>
+
