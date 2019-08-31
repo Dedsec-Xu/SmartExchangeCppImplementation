@@ -36,15 +36,15 @@ void train(int epoch, int resume, float lr, float momentum, float weight_decay) 
 	for (int i = start_epoch; i < start_epoch + epoch; i++) {
 		std::cout << "epoch: " << i << " training............" << std::endl;
 		train_one_epoch(weights, lr, momentum, weight_decay);
-		std::cout << "epoch: " << i << " testing............" << std::endl;
-		//acc = test(weights, print);
-		//std::cout << "weights:" << std::endl;
-		//for (int w = 0; w < num_weights; w++) {
-		//	std::cout << weights[w] << " ";
-		//}
-		//std::cout << std::endl;
+		std::cout << "epoch: " << i << " test............" << std::endl;
+		acc=resnet18(1, 10, 11500200, 1, weights);
 		std::cout << "Test acc is : " << acc << std::endl;
 	}
+	//std::cout << "weights:" << std::endl;
+ //   for (int w = 0; w < num_weights; w++) {
+ //   	std::cout << weights[w] << " ";
+ //   }
+ //   std::cout << std::endl;
 }
 
 float train_one_epoch(fixed weights[], float lr, float momentum, float weight_decay) {
@@ -56,7 +56,7 @@ float train_one_epoch(fixed weights[], float lr, float momentum, float weight_de
 	FILE *f_img;
 	int num_pixels = 3072;
 	for (int i = 0; i < 1; i++) {
-		for (int j = 0; j < 2; j += 1) {
+		for (int j = 0; j < 10; j += 1) {
 			tmp = std::string(s1) + std::string(s2) + std::to_string(i * 100 + j) + std::string(s3);
 			img_file = tmp.c_str();
 			f_img = fopen(img_file, "rb");
@@ -64,7 +64,7 @@ float train_one_epoch(fixed weights[], float lr, float momentum, float weight_de
 				std::cout << "Cannot open the file " << img_file << std::endl;
 			}
 			else {
-				std::cout << "procssing " << img_file << "............." << std::endl;
+				std::cout << "training using " << img_file << "............." << std::endl;
 				fixed* img = new fixed[num_pixels * sizeof(fixed)];
 				fread(img, sizeof(fixed), num_pixels + 1, f_img);
 				backward(img, weights, lr, momentum, weight_decay);
@@ -86,8 +86,7 @@ float backward(fixed* img, fixed weights[], float lr, float momentum, float weig
 	weight_id = 0; //64*3*3*3
 	fixed bias_temp64[64] = { 0.0 };
 	conv(true, true, 1, 3, 64, 32, 32, 3, 1, 2, img, weights + weight_id, bias_temp64, L0);
-	delete[] img;
-	img = NULL;
+	
 
 	//layer1**************************************************
 	//block1
@@ -220,6 +219,8 @@ float backward(fixed* img, fixed weights[], float lr, float momentum, float weig
 	fixed bias_temp1000[1000] = { 0.0 };
 	fc(false, true, false, 1, 512, 1000, L5, weights + weight_id, weights + bias_id, L6);
 
+	std::cout << "num weights:" << bias_id + 1000 << std::endl;
+
 
 	//Backward******************************************************************************************
 
@@ -241,8 +242,9 @@ float backward(fixed* img, fixed weights[], float lr, float momentum, float weig
 	//L44
     fixed grada_44[8192];//512*4*4               
 	for (int i = 0; i < 512; i++) {
+		//std::cout << "i:" << i << std::endl;
 		for (int j = 0; j < 4; j++) {
-			for (int k = 0; k < 4; j++) {
+			for (int k = 0; k < 4; k++) {
 				grada_44[i * 16 + j * 4 + k] = grada_5[i] / 16;
 			}
 		}
@@ -474,19 +476,37 @@ float backward(fixed* img, fixed weights[], float lr, float momentum, float weig
 	}
 
 	//L0
-	fixed grada_0[3072];//3*32*32
-	fixed gradw_0[1728];//64*3*3*3
+	fixed grada_0[65536];//64*32*32
+	fixed gradw_0[36864];//64*64*3*3
 	fixed gradb_0[64] = { 0 };//no bias
 	fixed grada_0_part[1024];//32*32
 	fixed gradw_0_part[9];//3*3
 	//fixed grada_11_part[1024];//32*32
 	fixed a_0_part[1024];//32*32
 	fixed w_0_part[9];//3*3
-	weight_id = weight_id - 1728;
+	weight_id = weight_id - 36864;
 	conv_back(gradw_0, gradb_0, grada_0, grada_11, L0, L11, grada_0_part, gradw_0_part, grada_11_part, a_0_part, w_0_part, weights + weight_id);
-	for (int i = 0; i < 1728; i++) {
-		weights[weight_id + i] += -lr * (gradw_13[i]+1);
+	for (int i = 0; i < 36864; i++) {
+		weights[weight_id + i] += -lr * (gradw_0[i]+1);
 	}
+
+	//input
+	fixed grada_out[3072];//3*32*32
+	fixed gradw_out[1728];//64*3*3*3
+	fixed gradb_out[64] = { 0 };//no bias
+	fixed grada_out_part[1024];//32*32
+	fixed gradw_out_part[9];//3*3
+	//fixed grada_0_part[1024];//32*32
+	fixed a_out_part[1024];//32*32
+	fixed w_out_part[9];//3*3
+	weight_id = weight_id - 1728;
+	conv_back(gradw_out, gradb_out, grada_out, grada_0, img, L0, grada_out_part, gradw_out_part, grada_0_part, a_out_part, w_out_part, weights + weight_id);
+	for (int i = 0; i < 1728; i++) {
+		weights[weight_id + i] += -lr * (gradw_out[i]);
+	}
+
+	delete[] img;
+	img = NULL;
 
 	std::cout << "weight_id: " << weight_id << std::endl;
 
