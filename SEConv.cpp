@@ -285,6 +285,7 @@ void SEConv::forward(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE
 fixed SEConv::backward(fixed loss, fixed max_C, fixed min_C)
 {
 	parsify_and_quantize_C(qC);
+	get_c_d();
 	
 	for (int iter_1 = 0; iter_1 < size_1; iter_1++)
 	{
@@ -420,63 +421,32 @@ fixed sparsify_and_quantize_C(fixed qC[][BF_CE_2][BF_CE_3])
 	}
 }
 
-int bmm(int input1[][buffersize_x][buffersize_y], int input2[][buffersize_y][buffersize_r], 
-	int output[][buffersize_x][buffersize_r], int input1_dim[], int input2_dim[], int output_dim[])
+int get_c_d(fixed weight_buffer[][BF_B_2][BF_B_3], fixed B_buffer[][BF_B_2][BF_B_3], fixed Cd_buffer[][BF_B_2][BF_B_3])
 {
-	int d = input1_dim[0];
-	int m = input1_dim[1];
-	int r = input1_dim[2];
-	int a[m][n];
-	int b[n][l];
-	int c[m][l];
-	for (int d = 0; d <= dim; d++) // d= dimension
+	for (int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
 	{
-		for (int i = 0; i < m; i++)
+		for (int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
 		{
-			for (int j = 0; j < r; j++)
+			for (int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
 			{
-				a[m][n] = input1[d][i][j];
+				Cd_buffer[iter_1][iter_2][iter_3] = weight_buffer[iter_1][iter_2][iter_3] / B_buffer[iter_1][iter_2][iter_3];
 			}
-		}
-
-		for (int i = 0; i < m; i++)
-		{
-			for (int j = 0; j < r; j++)
-			{
-				b[m][n] = input2[d][i][j];
-			}
-		}
-
-		///initial the computed martix/
-		for (int i = 0; i < m; i++)
-		{
-			for (int j = 0; j < r; j++)
-			{
-				c[i][j] = 0;
-			}
-		}
-		///compute the martix/
-		for (int i = 0; i < m; i++)
-		{
-			for (int j = 0; j < r; j++)
-			{
-				for (int k = 0; k < n; k++)
-				{
-					c[i][j] = c[i][j] + (a[i][k] * b[k][j]);
-				}
-			}
-		}
-		/// display the martix/
-		// cout << endl << endl << "result："<< endl << endl;
-		for (int i = 0; i < m; i++)
-		{
-			for (int j = 0; j < r; j++)
-			{
-				// cout << c[i][j] << "\t";
-				output[d][i][j] = c[i][j];
-			}
-			// cout << endl << endl;
 		}
 	}
-	return 0;
+
+}
+
+int get_b_d(fixed weight_buffer[][BF_B_2][BF_B_3], fixed c_buffer[][BF_B_2][BF_B_3], fixed bd_buffer[][BF_B_2][BF_B_3])
+{
+	for (int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
+	{
+		for (int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
+		{
+			for (int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
+			{
+				bd_buffer[iter_1][iter_2][iter_3] = weight_buffer[iter_1][iter_2][iter_3] / c_buffer[iter_1][iter_2][iter_3];
+			}
+		}
+	}
+
 }
