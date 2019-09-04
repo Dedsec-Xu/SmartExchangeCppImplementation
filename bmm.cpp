@@ -2,9 +2,11 @@
 //  main.cpp
 //  Cfunction
 //
-//  Created by SHU WANG on 8/28/19.
+//  Created by SHA BI on 8/28/19.
 //  Copyright © 2019 SHU WANG. All rights reserved.
 //
+//  Critisized by XLD on 9/4/19
+//  This code is shit
 #include <iostream>
 #include "stdio.h"
 #define buffersize_x 4

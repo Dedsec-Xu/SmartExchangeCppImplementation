@@ -8,28 +8,36 @@
 #include "fpga_module.h"
 #include "SEConv.h"
 #include <math.h>
-#define dC_threshold_ 0.5 
-#define switch_bar_ 7.0
 
 //stride=1, padding=0, dilation=1, groups=1, bias=False, size_splits=64,
 //threshold=5e-3 
 
-SEConv(bool bn, bool relu, int batch_size, int ch_in,
-	int ch_out, int size_in, int size_out, int kernel_size,
-	int stride, int padding, float *conv_in, float *weights, float *bias,
-	float *conv_out, int size_splits, float threshold, int size_C_dim[], 
-	int size_B_dim[], float Ce_buffer[], float B_buffer[])
-{
-	float mask_data_buffer[BF_CE_1][BF_CE_1][BF_CE_1];
-	float weight_buffer[BF_B_1][buffersize_x][buffersize_y][buffersize_y];
-	float qC_buffer[BF_CE_1][BF_CE_1][BF_CE_1];
+SEConv::SEConv() {}
 
-	float dC_threshold = dC_threshold_;
-	float switch_bar = switch_bar_;
+SEConv::SEConv(bool bn_input, bool relu_input, int batch_size_input, int ch_in_input,
+	int ch_out_input, int size_in_input, int size_out_input, int kernel_size_input,
+	int stride_input, int padding_input, fixed *conv_in_input, fixed *weights_input, fixed *bias_input,
+	fixed *conv_out_input, int size_splits_input, float threshold_input)
+{
 	//initialization, because C is different from python. You need to input all parameters in order to use this function,
-	int size_B;
-	int size_C;
-	int num_splits;
+	bn = bn_input;
+	relu = relu_input;
+	batch_size = batch_size_input;
+	ch_in = ch_in_input;
+	ch_out = ch_out_input;
+	size_in = size_in_input;
+	size_out = size_out_input;
+	kernel_size = kernel_size_input;
+	stride = stride_input;
+	padding = padding_input;
+	conv_in = conv_in_input;
+	weights = weights_input;
+	bias = bias_input;
+	conv_out = conv_out_input;
+	bias = bias_input;
+	size_splits = size_splits_input;
+	threshold = threshold_input;
+
 	if (kernel_size > 1)
 	{
 		size_B = kernel_size;
@@ -111,10 +119,10 @@ SEConv(bool bn, bool relu, int batch_size, int ch_in,
 	SIZE_B_dim[2] = size_B;
 	set_mask();
 
-	reset_parameters(Ce_buffer,B_buffer,size_C_dim,size_B_dim);
+	reset_parameters(Ce_buffer,B_buffer);
 }
 
-int reset_parameters(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_CE_2][BF_CE_3], int size_C_dim[], int size_B_dim[])
+int SEConv::reset_parameters(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3])
 {
 	int n = ch_in;
 	kaiming_uniform_(Ce_buffer, 3, size_C_dim[0], size_C_dim[1], size_C_dim[2]);
@@ -128,7 +136,7 @@ int reset_parameters(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_CE
 
 }
 
-// int SEConv::_calculate_fan_out(float input_matrix[][BF_CE_2][BF_CE_3], int numel, int dimensions, int size_1, int size_2)//size_1 = tensor.size(0)
+// int SEConv::_calculate_fan_out(fixed input_matrix[][BF_CE_2][BF_CE_3], int numel, int dimensions, int size_1, int size_2)//size_1 = tensor.size(0)
 // {//we assert that dimension is 3
 //     int fan_out;
 //    	// if (dimensions == 2)	// Linear
@@ -152,14 +160,14 @@ int reset_parameters(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_CE
 //     return fan_out;
 // }
 
-int kaiming_uniform_(float input_matrix[][BF_CE_2][BF_CE_3], int dimensions, int size_1, int size_2, int size_3)
+int SEConv::kaiming_uniform_(fixed input_matrix[][BF_CE_2][BF_CE_3], int dimensions, int size_1, int size_2, int size_3)
 {
 	//mode='fan_out', nonlinearity='relu'
 	double bound = sqrt(6.0) / sqrt(size_2 *size_3);	//replaced SEConv::_calculate_fan_out()
 	uniform_(tensor, -bound, bound, size_1, size_2, size_3);
 }
 
-int uniform_(float input_matrix[][BF_CE_2][BF_CE_3], float lower_bound, float upper_bound, int size_1, int size_2, int size_3)
+int SEConv::uniform_(fixed input_matrix[][BF_CE_2][BF_CE_3], float lower_bound, float upper_bound, int size_1, int size_2, int size_3)
 {
 	for (int iter_1 = 0; iter_1 < size_1; iter_1++)
 	{
@@ -173,7 +181,7 @@ int uniform_(float input_matrix[][BF_CE_2][BF_CE_3], float lower_bound, float up
 	}
 }
 
-int normal_(float input_matrix[][BF_CE_2][BF_CE_3], float mean_in, float std_in, int size_1, int size_2, int size_3)
+int SEConv::normal_(fixed input_matrix[][BF_CE_2][BF_CE_3], float mean_in, float std_in, int size_1, int size_2, int size_3)
 {
 	for (int iter_1 = 0; iter_1 < size_1; iter_1++)
 	{
@@ -187,11 +195,11 @@ int normal_(float input_matrix[][BF_CE_2][BF_CE_3], float mean_in, float std_in,
 	}
 }
 
-float gaussrand()	//Box-Muller
+fixed SEConv::gaussrand()	//Box-Muller
 {
-	static float U, V;
+	static fixed U, V;
 	static int phase = 0;
-	float Z;
+	fixed Z;
 
 	if (phase == 0)
 	{
@@ -208,7 +216,7 @@ float gaussrand()	//Box-Muller
 	retrn Z;
 }
 
-int set_mask()
+int SEConv::set_mask()
 {
 	for (int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
 	{
@@ -247,7 +255,7 @@ int set_mask()
 
 //             output[nnz_idx] = output_abs_nnz * input_sign[nnz_idx]
 
-int get_weight(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_CE_2][BF_CE_3], float weight[][buffersize_x][buffersize_y][buffersize_y])
+int SEConv::get_weight(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][buffersize_x][buffersize_y][buffersize_y])
 {
 
 	sparsify_and_quantize_C(qC);
@@ -264,7 +272,7 @@ int get_weight(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_CE_2][BF
 	        }
 	    }
 	}
-	float BC[buffersize_x][buffersize_x][buffersize_r];
+	fixed BC[buffersize_x][buffersize_x][buffersize_r];
 	int BC_dim[3];
 	bmm(qC, B, BC, size_C_dim, size_B_dim, BC_dim);//BC = torch.bmm(qC, self.B)
 	weight_dim[1] = reshape(BC, weight, BC_dim, ch_out, -1, kernel_size, kernel_size);//weight = BC.reshape(self.out_channels, -1, *self.kernel_size)
@@ -272,7 +280,7 @@ int get_weight(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_CE_2][BF
 	weight_dim[0] = ch_out;
 	weight_dim[2] = kernel_size;
 	weight_dim[3] = kernel_size;
-
+=
 	if(kernel_size == 1)
 	{
 		weight_dim[1] = ch_in;
@@ -280,7 +288,7 @@ int get_weight(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_CE_2][BF
 	// requires *bmm sparsify_and_nearestpow2 reshape
 }
 
-int SEforward(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_CE_2][BF_CE_3], float weight[][BF_CE_2][BF_CE_3])
+int SEConv::forward(fixed Ce_buffer[][BF_CE_2][BF_CE_3], fixed B_buffer[][BF_CE_2][BF_CE_3], fixed weight[][BF_CE_2][BF_CE_3])
 {
 	get_weight(Ce_buffer, B_buffer, weight_buffer);
 	conv(bn, relu, batch_size, ch_in, ch_out, size_in, size_out, kernel_size, stride, padding, conv_in, weights, bias, conv_out);
@@ -288,7 +296,7 @@ int SEforward(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_CE_2][BF_
 	return weight;
 }
 
-float SEbackward(float loss, float max_C, float min_C)
+fixed SEConv::backward(fixed loss, fixed max_C, fixed min_C)
 {
 	parsify_and_quantize_C(qC);
 	get_c_d();
@@ -383,9 +391,9 @@ float SEbackward(float loss, float max_C, float min_C)
 	// optim.step()
 }
 
-float sparsify_and_quantize_C(float qC[][BF_CE_2][BF_CE_3])
+fixed sparsify_and_quantize_C(fixed qC[][BF_CE_2][BF_CE_3])
 {
-	float input_sign, input_abs;
+	fixed input_sign, input_abs;
 	double log_temp, ceil_temp, prevpow2, nextpow2, lerr, rerr;
 	for (int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
 	{
@@ -428,7 +436,7 @@ float sparsify_and_quantize_C(float qC[][BF_CE_2][BF_CE_3])
 	}
 }
 
-// int get_c_d(float weight_buffer[][BF_B_2][BF_B_3], float B_buffer[][BF_B_2][BF_B_3], float Cd_buffer[][BF_B_2][BF_B_3])
+// int get_c_d(fixed weight_buffer[][BF_B_2][BF_B_3], fixed B_buffer[][BF_B_2][BF_B_3], fixed Cd_buffer[][BF_B_2][BF_B_3])
 // {
 // 	for (int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
 // 	{
@@ -443,7 +451,7 @@ float sparsify_and_quantize_C(float qC[][BF_CE_2][BF_CE_3])
 
 // }
 
-// int get_b_d(float weight_buffer[][BF_B_2][BF_B_3], float c_buffer[][BF_B_2][BF_B_3], float bd_buffer[][BF_B_2][BF_B_3])
+// int get_b_d(fixed weight_buffer[][BF_B_2][BF_B_3], fixed c_buffer[][BF_B_2][BF_B_3], fixed bd_buffer[][BF_B_2][BF_B_3])
 // {
 // 	for (int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
 // 	{
@@ -458,8 +466,8 @@ float sparsify_and_quantize_C(float qC[][BF_CE_2][BF_CE_3])
 
 // }
 
-void bmm(float input1[][buffersize_x][buffersize_y], float input2[][buffersize_y][buffersize_r], 
-    float output[][buffersize_x][buffersize_r], int input1_dim[], int input2_dim[], int output_dim[] )
+void bmm(fixed input1[][buffersize_x][buffersize_y], fixed input2[][buffersize_y][buffersize_r], 
+    fixed output[][buffersize_x][buffersize_r], int input1_dim[], int input2_dim[], int output_dim[] )
 {
     if((input1_dim[0] == input2_dim[0])&&(input1_dim[2] == input2_dim[1]))
     {
@@ -473,7 +481,7 @@ void bmm(float input1[][buffersize_x][buffersize_y], float input2[][buffersize_y
             {
                 for(int iter_3 = 0; iter_3 < output_dim[2]; iter_3++)
                 {
-                    float1 sum = 0.0;
+                    fixed1 sum = 0.0;
                     for(int iter_4 = 0; iter_4 < input1_dim[2]; iter_4++)
                     {
                         sum += input1[iter_1][iter_2][iter_4]*input2[iter_1][iter_4][iter_3];//C[a,i,j]=sum(r,A[a,i,r]*B[a,r,j])
@@ -494,7 +502,7 @@ void bmm(float input1[][buffersize_x][buffersize_y], float input2[][buffersize_y
     }
 }
 
-int reshape(float1 input1[][buffersize_x][buffersize_y], float1 output[][buffersize_x][buffersize_y][buffersize_y], int inputdim[], int dim_1, int dim_2, int dim_3, int dim_4)
+int reshape(fixed1 input1[][buffersize_x][buffersize_y], fixed1 output[][buffersize_x][buffersize_y][buffersize_y], int inputdim[], int dim_1, int dim_2, int dim_3, int dim_4)
 {
     int input_d1, input_d2, input_d3, input_d, input_d1X2, in_iter_1, in_iter_2, in_iter_3;
     input_d1 = inputdim[0];
@@ -506,7 +514,7 @@ int reshape(float1 input1[][buffersize_x][buffersize_y], float1 output[][buffers
     input_d1X2 = input_d1 * input_d2;
     int Reshape_Size = input_d1 * input_d2 * input_d3;
     int break_flag = 0;
-    float1 Reshape_Buffer[Reshape_Buffer_Size];
+    fixed1 Reshape_Buffer[Reshape_Buffer_Size];
     int current_iter;
     if(dim_2 == -1)
     {

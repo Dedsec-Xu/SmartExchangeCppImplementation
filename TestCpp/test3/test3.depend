@@ -1,0 +1,5 @@
+# depslib dependency file v1.0
+1567589514 source:e:\documents\github\smartexchangecppimplementation\testcpp\test3\main.cpp
+	<iostream>
+	<math.h>
+

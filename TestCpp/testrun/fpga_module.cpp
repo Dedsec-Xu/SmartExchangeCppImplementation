@@ -5,7 +5,8 @@
 #define BF_WE 1024
 #define BF_IN 1024
 #define BF_OUT 1024
-int conv(bool bn, bool relu, int batch_size, int ch_in, int ch_out, int size_in, int size_out, int kernel_size, int stride, int padding, fixed* conv_in, fixed* weights, fixed* bias, fixed* conv_out){
+int conv(bool bn, bool relu, int batch_size, int ch_in, int ch_out, int size_in, int size_out, 
+int kernel_size, int stride, int padding, fixed* conv_in, fixed* weights, fixed* bias, fixed* conv_out){
     int P = padding;
     int id_img, id_ch_in, id_ch_out, id_output_row, id_output_col, id_kernel_row, id_kernel_col;
     int start_col, start_row;
