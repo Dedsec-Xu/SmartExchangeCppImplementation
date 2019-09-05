@@ -32,6 +32,10 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="SEConv.cpp" />
+		<Unit filename="SEConv.h" />
+		<Unit filename="fpga_module.cpp" />
+		<Unit filename="fpga_module.h" />
 		<Unit filename="main.cpp" />
 		<Extensions>
 			<code_completion />
