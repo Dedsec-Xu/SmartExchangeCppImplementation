@@ -8,7 +8,7 @@
 
 #include "SEConv.h"
 #include <math.h>
-#define dC_threshold 0.5
+#define C_grad_threshold 0.5
 #define switch_bar 7.0
 //#define spars_C_threshold 0.005
 
@@ -112,7 +112,7 @@ int SEConv(bool bn, bool relu, int batch_size, int ch_in,
 	reset_parameters(Ce_buffer,B_buffer,size_C_dim,size_B_dim, ch_in);
 }
 
-int reset_parameters(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_CE_2][BF_CE_3],
+int reset_parameters(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_B_2][BF_B_3],
 	int size_C_dim[], int size_B_dim[], int ch_in)
 {
 	int n = ch_in;
@@ -207,7 +207,7 @@ float gaussrand()	//Box-Muller
 	return Z;
 }
 
-int set_mask(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_CE_2][BF_CE_3], int size_C_dim[], int size_B_dim[], float mask_data_buffer[][BF_CE_2][BF_CE_3])
+int set_mask(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_B_2][BF_B_3], int size_C_dim[], int size_B_dim[], float mask_data_buffer[][BF_CE_2][BF_CE_3])
 {
 	for (int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
 	{
@@ -246,7 +246,7 @@ int set_mask(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_CE_2][BF_C
 
 //             output[nnz_idx] = output_abs_nnz * input_sign[nnz_idx]
 
-int get_weight(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_CE_2][BF_CE_3],
+int get_weight(float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_B_2][BF_B_3],
 	 float weight[][buffersize_x][buffersize_y][buffersize_y], int size_C_dim[], int size_B_dim[],
 	 int weight_dim[], float mask_data_buffer[][BF_CE_2][BF_CE_3], int ch_in, int ch_out, int kernel_size,float qC_buffer[][BF_CE_2][BF_CE_3], float threshold)
 {
@@ -287,7 +287,7 @@ int SEforward(bool bn, bool relu, int batch_size, int ch_in,
 	int stride, int padding, float *conv_in, float *weights, float *bias,
 	float *conv_out, int size_splits, float threshold, int size_C_dim[],
 	int size_B_dim[], float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_B_2][BF_B_3],
-	float weight_buffer[][buffersize_x][buffersize_y][buffersize_y],int weight_dim[], float mask_data_buffer[][BF_CE_1][BF_CE_1], float qC_buffer[][BF_CE_1][BF_CE_1])
+	float weight_buffer[][buffersize_x][buffersize_y][buffersize_y],int weight_dim[], float mask_data_buffer[][BF_CE_2][BF_CE_3], float qC_buffer[][BF_CE_2][BF_CE_3])
 {
 	get_weight(Ce_buffer, B_buffer, weight_buffer, size_C_dim, size_B_dim, weight_dim,  mask_data_buffer, ch_in, ch_out, kernel_size,qC_buffer,threshold);
 	conv(bn, relu, batch_size, ch_in, ch_out, size_in, size_out, kernel_size, stride, padding, conv_in, weights, bias, conv_out);
@@ -295,17 +295,51 @@ int SEforward(bool bn, bool relu, int batch_size, int ch_in,
 	return 1;
 }
 
-float SEbackward(float weight_grad[], float Ce_buffer[][BF_CE_2][BF_CE_3], float loss, float max_C, float min_C, float qC_buffer[][BF_CE_1][BF_CE_1], int size_C_dim[], float Learning_Rate, float mask_data_buffer[][BF_CE_1][BF_CE_1], float threshold)
+float SEbackward(float weight_grad[], float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_B_2][BF_B_3], int size_C_dim[], int size_B_dim[],
+                 float loss, float max_C, float min_C, float Learning_Rate, float mask_data_buffer[][BF_CE_2][BF_CE_3], float threshold)
 {
 
-	float dC_buffer[BF_CE_1][BF_CE_2][BF_CE_3];
-	float dC_sign[BF_CE_1][BF_CE_2][BF_CE_3];
-	float dC_counter[BF_CE_1][BF_CE_2][BF_CE_3];
-	float dC_pow[BF_CE_1][BF_CE_2][BF_CE_3];
-	float dC_mul[BF_CE_1][BF_CE_2][BF_CE_3];
-	float dC_add;
+
+	//float weight_grad[];
+	float BC_grad[BF_CE_1][BF_CE_2][BF_CE_3];
+	float C_grad[BF_CE_1][BF_CE_2][BF_CE_3];
+	float B_grad[BF_B_1][BF_B_2][BF_B_3];
+	float qC_buffer[BF_CE_1][BF_CE_2][BF_CE_3];
+
+
+
+
 	sparsify_and_quantize_C(Ce_buffer, qC_buffer, size_C_dim, threshold);
-	get_c_d(0,0,0,0,Learning_Rate,dC_buffer,size_C_dim);
+	reshapeBC(weight_grad, size_C_dim, BC_grad);
+
+	for(int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
+	{
+		for(int iter_2 = 0; iter_2 < size_C_dim[1]; iter_2++)
+		{
+			for(int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
+			{
+				for(int iter_4 = 0; iter_4 < size_B_dim[2]; iter_4++)
+				{
+					C_grad[iter_1][iter_2][iter_4] = BC_grad[iter_1][iter_2][iter_3] * B_buffer[iter_1][iter_4][iter_3];
+
+					B_grad[iter_1][iter_4][iter_3] = BC_grad[iter_1][iter_2][iter_3] * qC_buffer[iter_1][iter_2][iter_4];
+
+					//cout << sum<<endl;
+				}
+				// cout <<  output[iter_1][iter_2][iter_3]<<"\t" ;
+			}
+			// cout << endl;
+		}
+		// cout << endl;
+		// cout << endl;
+	}
+	float C_grad_sign[BF_CE_1][BF_CE_2][BF_CE_3];
+	float C_grad_counter[BF_CE_1][BF_CE_2][BF_CE_3];
+	float C_grad_pow[BF_CE_1][BF_CE_2][BF_CE_3];
+	float C_grad_mul[BF_CE_1][BF_CE_2][BF_CE_3];
+	float C_grad_add;
+
+	get_c_d(0,0,0,0,Learning_Rate,C_grad,size_C_dim);
 
 	for (int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
 	{
@@ -313,37 +347,37 @@ float SEbackward(float weight_grad[], float Ce_buffer[][BF_CE_2][BF_CE_3], float
 		{
 			for (int iter_3 = 0; iter_3 < size_C_dim[2]; iter_3++)
 			{
-				//dC[dC.abs() <= args.dC_threshold] = 0.0
+				//dC[dC.abs() <= args.C_grad_threshold] = 0.0
 				//dC = optim.get_d(m.C) //?
-				if (dC_buffer[iter_1][iter_2][iter_3] <= dC_threshold)
+				if (C_grad[iter_1][iter_2][iter_3] <= C_grad_threshold)
 				{
-					dC_buffer[iter_1][iter_2][iter_3] = 0;
+					C_grad[iter_1][iter_2][iter_3] = 0;
 				}
-				dC_sign[iter_1][iter_2][iter_3] = (dC_buffer[iter_1][iter_2][iter_3] > 0) ? 1 : -1;
-				dC_counter[iter_1][iter_2][iter_3] += dC_sign[iter_1][iter_2][iter_3];
-				//dC_counter.abs() == args.switch_bar
-				if (fabs(dC_counter[iter_1][iter_2][iter_3]) == switch_bar)
+				C_grad_sign[iter_1][iter_2][iter_3] = (C_grad[iter_1][iter_2][iter_3] > 0) ? 1 : -1;
+				C_grad_counter[iter_1][iter_2][iter_3] += C_grad_sign[iter_1][iter_2][iter_3];
+				//C_grad_counter.abs() == args.switch_bar
+				if (fabs(C_grad_counter[iter_1][iter_2][iter_3]) == switch_bar)
 				{
-					//dC_sign = m.dC_counter.sign() * activated.float();
+					//C_grad_sign = m.C_grad_counter.sign() * activated.float();
 
-					dC_pow[iter_1][iter_2][iter_3] = ((dC_counter[iter_1][iter_2][iter_3] > 0) ? 1 : -1) * ((qC_buffer[iter_1][iter_2][iter_3] > 0) ? 1 : -1);
-					dC_mul[iter_1][iter_2][iter_3] = pow(2, dC_pow[iter_1][iter_2][iter_3]);
+					C_grad_pow[iter_1][iter_2][iter_3] = ((C_grad_counter[iter_1][iter_2][iter_3] > 0) ? 1 : -1) * ((qC_buffer[iter_1][iter_2][iter_3] > 0) ? 1 : -1);
+					C_grad_mul[iter_1][iter_2][iter_3] = pow(2, C_grad_pow[iter_1][iter_2][iter_3]);
 					if (qC_buffer[iter_1][iter_2][iter_3] == 0)
 					{
-						dC_add = mask_data_buffer[iter_1][iter_2][iter_3] * dC_sign[iter_1][iter_2][iter_3] * min_C;
+						C_grad_add = mask_data_buffer[iter_1][iter_2][iter_3] * C_grad_sign[iter_1][iter_2][iter_3] * min_C;
 					}
 					else
 					{
-						dC_add = 0.0;
+						C_grad_add = 0.0;
 					}
-					dC_counter[iter_1][iter_2][iter_3] = 0.0;
+					C_grad_counter[iter_1][iter_2][iter_3] = 0.0;
 				}
 				else
 				{
-					dC_mul[iter_1][iter_2][iter_3] = 1.0;
-					dC_add = 0.0;
+					C_grad_mul[iter_1][iter_2][iter_3] = 1.0;
+					C_grad_add = 0.0;
 				}
-				Ce_buffer[iter_1][iter_2][iter_3] = Ce_buffer[iter_1][iter_2][iter_3] * dC_mul[iter_1][iter_2][iter_3] + dC_add;
+				Ce_buffer[iter_1][iter_2][iter_3] = Ce_buffer[iter_1][iter_2][iter_3] * C_grad_mul[iter_1][iter_2][iter_3] + C_grad_add;
 				if (Ce_buffer[iter_1][iter_2][iter_3] > max_C)//clamp
 				{
 					Ce_buffer[iter_1][iter_2][iter_3] = max_C;
@@ -352,6 +386,17 @@ float SEbackward(float weight_grad[], float Ce_buffer[][BF_CE_2][BF_CE_3], float
 				{
 					Ce_buffer[iter_1][iter_2][iter_3] = -max_C;
 				}
+			}
+		}
+	}
+
+	for (int iter_1 = 0; iter_1 < size_B_dim[0]; iter_1++)
+	{
+		for (int iter_2 = 0; iter_2 < size_B_dim[1]; iter_2++)
+		{
+			for (int iter_3 = 0; iter_3 < size_B_dim[2]; iter_3++)
+			{
+				B_buffer[iter_1][iter_2][iter_3] -= B_grad[iter_1][iter_2][iter_3] * Learning_Rate;
 			}
 		}
 	}
@@ -369,29 +414,29 @@ float SEbackward(float weight_grad[], float Ce_buffer[][BF_CE_2][BF_CE_3], float
 	// 			dC = optim.get_d(m.C)
 	// 			if dC is None:
 	// 				continue
-	// 			if args.dC_threshold > 0.0:
+	// 			if args.C_grad_threshold > 0.0:
 
-	// 				dC[dC.abs() <= args.dC_threshold] = 0.0
+	// 				dC[dC.abs() <= args.C_grad_threshold] = 0.0
 	// 			m.C.grad = None
-	// 			dC_sign = dC.sign().float()
-	// 			# update ``dC_counter``
-	// 			m.dC_counter.add_(dC_sign)
-	// 			activated = m.dC_counter.abs() == args.switch_bar
+	// 			C_grad_sign = dC.sign().float()
+	// 			# update ``C_grad_counter``
+	// 			m.C_grad_counter.add_(C_grad_sign)
+	// 			activated = m.C_grad_counter.abs() == args.switch_bar
 	// 			# if activated.any():
 	// 			#     print('Ce is updated!!')
-	// 			dC_sign = m.dC_counter.sign() * activated.float()
+	// 			C_grad_sign = m.C_grad_counter.sign() * activated.float()
 	// 			# Ce non-zero and gradient non-zero
-	// 			dC_pow = dC_sign * qC.sign().float()
-	// 			dC_mul = 2 ** dC_pow
+	// 			C_grad_pow = C_grad_sign * qC.sign().float()
+	// 			C_grad_mul = 2 ** C_grad_pow
 	// 			# Ce zero (not in the mask) and gradient non-zero
-	// 			dC_add = (qC == 0.0).float() * m.mask * dC_sign * args.min_C
+	// 			C_grad_add = (qC == 0.0).float() * m.mask * C_grad_sign * args.min_C
 	// 			# update C
-	// 			new_C = qC.data * dC_mul + dC_add
+	// 			new_C = qC.data * C_grad_mul + C_grad_add
 	// 			if args.max_C is not None:
 	// 				new_C.clamp_(-args.max_C, args.max_C)
 	// 			m.C.data = new_C
 	// 			# reset activated counters to 0
-	// 			m.dC_counter[activated] = 0.0
+	// 			m.C_grad_counter[activated] = 0.0
 	// 			# m.C.data = sparsify_and_nearestpow2(new_C, args.threshold)
 
 	// optim.step()
@@ -574,7 +619,7 @@ int reshape(float input1[][buffersize_x][buffersize_y], float output[][buffersiz
 }
 
 
-int reshapeBC(float weight_grad[], int size_C_dim[]，float BC[][BF_CE_2][BF_CE_3])
+int reshapeBC(float weight_grad[], int size_C_dim[],float BC[][BF_CE_2][BF_CE_3])
 {
 	for(int iter_1 = 0; iter_1 < size_C_dim[0]; iter_1++)
 	{
