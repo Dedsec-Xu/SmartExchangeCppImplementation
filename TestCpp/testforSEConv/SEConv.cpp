@@ -300,7 +300,7 @@ float SEbackward(float weight_grad[], float Ce_buffer[][BF_CE_2][BF_CE_3], float
 {
 
 	float mask_data_buffer[BF_CE_1][BF_CE_2][BF_CE_3];
-	set_mask(Ce_buffer,B_buffer,size_C_dim,size_B_dim,mask_data_buffer)
+	set_mask(Ce_buffer,B_buffer,size_C_dim,size_B_dim,mask_data_buffer);
 
 	//float weight_grad[];
 	float BC_grad[BF_CE_1][BF_CE_2][BF_CE_3];
