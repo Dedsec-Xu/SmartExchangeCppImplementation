@@ -1,0 +1,3 @@
+==> Resuming from checkpoint results/SEMaskResNet18-swa-lr0.01-switch-bar7-maxC1.0-structural-dC-th5e-03-decay0.1_1_finetune_target/ckpt-swa-start40.0.pth.tar..
+
+Epoch: 0

@@ -1,0 +1,265 @@
+==> Resuming from checkpoint results/MobileNetV2-swa-lr0.05_1_finetune_source/ckpt-0.007-structural-dj.pth.tar..
+
+Epoch: 0
+Saving..
+
+Epoch: 1
+Saving..
+
+Epoch: 2
+Saving..
+
+Epoch: 3
+Saving..
+
+Epoch: 4
+Saving..
+
+Epoch: 5
+
+Epoch: 6
+Saving..
+
+Epoch: 7
+
+Epoch: 8
+
+Epoch: 9
+Saving..
+
+Epoch: 10
+
+Epoch: 11
+
+Epoch: 12
+Saving..
+
+Epoch: 13
+
+Epoch: 14
+
+Epoch: 15
+
+Epoch: 16
+
+Epoch: 17
+
+Epoch: 18
+
+Epoch: 19
+Saving..
+
+Epoch: 20
+
+Epoch: 21
+Saving..
+
+Epoch: 22
+
+Epoch: 23
+Saving..
+
+Epoch: 24
+
+Epoch: 25
+
+Epoch: 26
+
+Epoch: 27
+
+Epoch: 28
+
+Epoch: 29
+
+Epoch: 30
+
+Epoch: 31
+
+Epoch: 32
+Saving..
+
+Epoch: 33
+
+Epoch: 34
+
+Epoch: 35
+
+Epoch: 36
+
+Epoch: 37
+Saving..
+
+Epoch: 38
+Saving..
+
+Epoch: 39
+
+********* SWA model testing *********
+Saving..
+
+Epoch: 40
+
+********* SWA model testing *********
+Saving..
+
+Epoch: 41
+
+********* SWA model testing *********
+
+Epoch: 42
+Saving..
+
+********* SWA model testing *********
+
+Epoch: 43
+
+********* SWA model testing *********
+
+Epoch: 44
+
+********* SWA model testing *********
+Saving..
+
+Epoch: 45
+
+********* SWA model testing *********
+Saving..
+
+Epoch: 46
+
+********* SWA model testing *********
+
+Epoch: 47
+
+********* SWA model testing *********
+Saving..
+
+Epoch: 48
+
+********* SWA model testing *********
+
+Epoch: 49
+
+********* SWA model testing *********
+
+Epoch: 50
+Saving..
+
+********* SWA model testing *********
+
+Epoch: 51
+
+********* SWA model testing *********
+
+Epoch: 52
+
+********* SWA model testing *********
+
+Epoch: 53
+
+********* SWA model testing *********
+
+Epoch: 54
+
+********* SWA model testing *********
+
+Epoch: 55
+
+********* SWA model testing *********
+
+Epoch: 56
+
+********* SWA model testing *********
+
+Epoch: 57
+
+********* SWA model testing *********
+
+Epoch: 58
+
+********* SWA model testing *********
+
+Epoch: 59
+
+********* SWA model testing *********
+
+Epoch: 60
+
+********* SWA model testing *********
+
+Epoch: 61
+
+********* SWA model testing *********
+
+Epoch: 62
+
+********* SWA model testing *********
+
+Epoch: 63
+
+********* SWA model testing *********
+
+Epoch: 64
+
+********* SWA model testing *********
+
+Epoch: 65
+
+********* SWA model testing *********
+
+Epoch: 66
+
+********* SWA model testing *********
+
+Epoch: 67
+
+********* SWA model testing *********
+
+Epoch: 68
+
+********* SWA model testing *********
+
+Epoch: 69
+
+********* SWA model testing *********
+
+Epoch: 70
+
+********* SWA model testing *********
+
+Epoch: 71
+
+********* SWA model testing *********
+
+Epoch: 72
+Saving..
+
+********* SWA model testing *********
+
+Epoch: 73
+
+********* SWA model testing *********
+
+Epoch: 74
+
+********* SWA model testing *********
+
+Epoch: 75
+
+********* SWA model testing *********
+
+Epoch: 76
+
+********* SWA model testing *********
+
+Epoch: 77
+
+********* SWA model testing *********
+
+Epoch: 78
+
+********* SWA model testing *********
+
+Epoch: 79
+
+********* SWA model testing *********

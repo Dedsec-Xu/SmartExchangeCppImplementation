@@ -1,0 +1,29 @@
+# depslib dependency file v1.0
+1567654877 source:e:\documents\github\smartexchangecppimplementation\testcpp\testforseconv\main.cpp
+	<iostream>
+	<string>
+	<stdlib.h>
+	<stdio.h>
+	"SEConv.h"
+
+1567654761 e:\documents\github\smartexchangecppimplementation\testcpp\testforseconv\seconv.h
+	<math.h>
+	"fpga_module.h"
+
+1567634586 source:e:\documents\github\smartexchangecppimplementation\testcpp\testforseconv\fpga_module.cpp
+	"fpga_module.h"
+	<math.h>
+
+1567634586 e:\documents\github\smartexchangecppimplementation\testcpp\testforseconv\fpga_module.h
+	<string>
+	<stdlib.h>
+	<stdio.h>
+	"unistd.h"
+	<ctime>
+	"stdio.h"
+	<cmath>
+
+1567654770 source:e:\documents\github\smartexchangecppimplementation\testcpp\testforseconv\seconv.cpp
+	"SEConv.h"
+	<math.h>
+
