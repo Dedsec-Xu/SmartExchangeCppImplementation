@@ -1,0 +1,19 @@
+# depslib dependency file v1.0
+1567666148 source:e:\documents\github\smartexchangecppimplementation\testcpp\transplane\fpga_module.cpp
+	"fpga_module.h"
+	<math.h>
+	<iostream>
+
+1567665596 e:\documents\github\smartexchangecppimplementation\testcpp\transplane\fpga_module.h
+	<string>
+	<stdlib.h>
+	<stdio.h>
+	<unistd.h>
+	<ctime>
+	"stdio.h"
+
+1567666128 source:e:\documents\github\smartexchangecppimplementation\testcpp\transplane\main.cpp
+	"fpga_module.h"
+	<math.h>
+	<iostream>
+
