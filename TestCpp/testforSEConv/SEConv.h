@@ -49,8 +49,8 @@ int SEforward(bool bn, bool relu, int batch_size, int ch_in,
 	float weight_buffer[][buffersize_x][buffersize_y][buffersize_y],int weight_dim[], float mask_data_buffer[][BF_CE_1][BF_CE_1], float qC_buffer[][BF_CE_1][BF_CE_1]);
 
 float SEbackward(float weight_grad[], float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_B_2][BF_B_3],
-                 int size_C_dim[], int size_B_dim[], float loss, float max_C, float min_C,
-                 float Learning_Rate, float mask_data_buffer[][BF_CE_1][BF_CE_1], float threshold);
+                 int size_C_dim[], int size_B_dim[], float max_C, float min_C,
+                 float Learning_Rate, float threshold);
 
 
 float sparsify_and_quantize_C(float Ce_buffer[][BF_CE_2][BF_CE_3], float qC[][BF_CE_2][BF_CE_3], int size_C_dim[], float threshold);

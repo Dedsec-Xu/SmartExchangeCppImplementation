@@ -296,9 +296,11 @@ int SEforward(bool bn, bool relu, int batch_size, int ch_in,
 }
 
 float SEbackward(float weight_grad[], float Ce_buffer[][BF_CE_2][BF_CE_3], float B_buffer[][BF_B_2][BF_B_3], int size_C_dim[], int size_B_dim[],
-                 float loss, float max_C, float min_C, float Learning_Rate, float mask_data_buffer[][BF_CE_2][BF_CE_3], float threshold)
+                  float max_C, float min_C, float Learning_Rate, float threshold)
 {
 
+	float mask_data_buffer[BF_CE_1][BF_CE_2][BF_CE_3];
+	set_mask(Ce_buffer,B_buffer,size_C_dim,size_B_dim,mask_data_buffer)
 
 	//float weight_grad[];
 	float BC_grad[BF_CE_1][BF_CE_2][BF_CE_3];
